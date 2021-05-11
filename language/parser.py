@@ -1,4 +1,4 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack as cut, Null
+from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack as cut, Null, _
 
 from langkit.dsl import T, ASTNode, abstract, Field, synthetic
 
@@ -141,7 +141,7 @@ class Suffix(Primary):
 #    """
 #    toto=Field()
 
-class IdentifierReference(Primary):
+class RefIdentifier(Primary):
     """
     IdentifierReference
     """
@@ -191,11 +191,19 @@ class Dot(Primary):
     """
     token_node = True
 
+class NL(Primary):
+    """
+    dummy
+    """
+    pass
+
+
 
 class CommentNode(P5Node):
     """
     TODO: transform this in a document node
     """
+    pass
     #text = Field()
 
 
@@ -222,12 +230,15 @@ p5_grammar.add_rules(
             ), 
             L.Termination
         ),
+        #Pick(G.comment, L.Termination)
     ),
 
     definition=Definition(
-        G.identifier,
+        G.identifier, #(Token.DefIdentifier),
         "<-",
-        G.expression
+        G.expression,
+        L.NL,
+        L.NL
     ),
 
     identifier=Identifier(Token.Identifier),
@@ -269,13 +280,14 @@ p5_grammar.add_rules(
         G.primary
     ),
 
-    primary=Or(
-        IdentifierReference(Token.Identifier),
+    primary=Pick(Or(
+        RefIdentifier(Token.Identifier),
         Group(Pick("(",G.expression,")")),
         Literal(Token.Literal),
         Class(Pick("[",G.range,"]")),
         Dot(".")
-    ),
+        
+    ),Opt(L.NL)),
 
 
     #char = CharNode(Token.Char),
@@ -285,8 +297,9 @@ p5_grammar.add_rules(
         Range(Token.Char)
     ),
 
+    comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 
-    comment = CommentNode(Token.Comment),
+    nl = Pick(NL(L.NL))
 
 )
 
