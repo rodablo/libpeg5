@@ -8,23 +8,31 @@ from langkit.expressions import (
     langkit_property, Self, Property
 )
 
+def ZeroOrMoreNewlinesHelper():
+    return _(List(G.nl, empty_valid=True))
+
+def ZeroOrOneNewlinesHelper():
+    return _(Opt(G.nl))
+
+def ZeroOrOneNewlinesOrTerminationHelper():
+    return _(Opt(Or(G.nl,L.Termination)))
 
 @abstract
 class P5Node(ASTNode):
     """
     Root node class for Peg5 AST nodes.
     """
-    toto = Property(Self.match(
-        lambda j=T.P5Node: 2323
-                               )
-                    )
+    #toto = Property(Self.match(
+    #    lambda j=T.P5Node: 2323
+    #                           )
+    #                )
     pass
 
-#class GrammarNode(P5Node):
-#    """
-#    Root grammar node.
-#    """
-#    definitions = Field()#type=T.DefinitionNode.list)
+class GrammarNode(P5Node):
+    """
+    Root grammar node.
+    """
+    definitions = Field(type=T.Definition.list)
 #
 #    #@langkit_property(return_type=T.Int, public=True)
 #    #def n_def():
@@ -199,12 +207,12 @@ class NL(Primary):
 
 
 
-class CommentNode(P5Node):
-    """
-    TODO: transform this in a document node
-    """
-    pass
-    #text = Field()
+#class CommentNode(P5Node):
+#    """
+#    TODO: transform this in a document node
+#    """
+#    pass
+#    #text = Field()
 
 
 #------------------------------------------------------------
@@ -220,24 +228,34 @@ p5_grammar.add_rules(
 
     # main_rule=GrammarNode(G.definition),
 
-    main_rule=Or(
-        #Pick(List(G.comment,empty_valid=False), L.Termination),
-        Pick(G.definition, L.Termination),
-        Pick(
-            List(
-                G.definition, 
-                list_cls=T.Definition.list, empty_valid=True
-            ), 
-            L.Termination
+    #main_rule=Or(
+    #    #Pick(List(G.comment,empty_valid=False), L.Termination),
+    #    Pick(G.definition, L.Termination),
+    #    Pick(
+    #        List(
+    #            G.definition, 
+    #            list_cls=T.Definition.list, empty_valid=True
+    #        ), 
+    #        L.Termination
+    #    ),
+    #    #Pick(G.comment, L.Termination)
+    #),
+
+    main_rule=GrammarNode(
+        List(
+            ZeroOrMoreNewlinesHelper(),
+            G.definition,
+            ZeroOrMoreNewlinesHelper(),
+            list_cls=T.Definition.list, empty_valid=True
         ),
-        #Pick(G.comment, L.Termination)
+        L.Termination
     ),
 
     definition=Definition(
         G.identifier, #(Token.DefIdentifier),
         "<-",
         G.expression,
-        L.NL,
+        #ZeroOrOneNewlinesOrTerminationHelper(),
         L.NL
     ),
 
@@ -280,15 +298,28 @@ p5_grammar.add_rules(
         G.primary
     ),
 
-    primary=Pick(Or(
-        RefIdentifier(Token.Identifier),
-        Group(Pick("(",G.expression,")")),
-        Literal(Token.Literal),
-        Class(Pick("[",G.range,"]")),
-        Dot(".")
-        
-    ),Opt(L.NL)),
+    primary=Pick(
+        #ZeroOrMoreNewlinesHelper(),
+        Or(
+            RefIdentifier(Token.Identifier),
+            #Group(Pick("(",G.expression,")")),
+            G.group,
+            Literal(Token.Literal),
+            Class(Pick("[",G.range,"]")),
+            Dot(".")
+        ),
+        ZeroOrOneNewlinesHelper(),
+    ),
 
+    group=Group(
+        Pick(
+            "(",
+            ZeroOrMoreNewlinesHelper(),
+            G.expression,
+            ZeroOrMoreNewlinesHelper(),
+            ")"
+        )
+    ),
 
     #char = CharNode(Token.Char),
 
@@ -297,9 +328,9 @@ p5_grammar.add_rules(
         Range(Token.Char)
     ),
 
-    comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
+    #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 
-    nl = Pick(NL(L.NL))
+    nl = NL(L.NL)
 
 )
 
