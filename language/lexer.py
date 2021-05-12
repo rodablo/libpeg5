@@ -1,27 +1,13 @@
 from langkit.lexer import (
-    Lexer, LexerToken, TokenFamily, Literal,
+    Lexer, LexerToken, TokenFamily, 
     WithText, WithSymbol, WithTrivia,
-    Pattern, Ignore, Alt, Case
+    Literal, Pattern, Ignore#, Alt, Case
 )
 
-
 class Token(LexerToken):
-    ##
 
-    # Lexical syntax
-    # to grammar Identifier	<- 	IdentStart IdentCont* Spacing
-   #  Identifier = WithSymbol()
-    #IdentStart = WithText()
-    # to grammar IdentStart / [0-9]
-    #
     Literal = WithText()
-    Class = WithText()
-    Range = WithText()
-    Range2 = WithText()
-    #LiteralChar = WithText()
     Char = WithText()
-
-    #
     LeftArrow = WithText()
     Slash = WithText()
     And = WithText()
@@ -37,17 +23,12 @@ class Token(LexerToken):
     #SQuo = WithText()
     #DQuo = WithText()
     Dash = WithText()
-
-    #
-    #Spacing = WithText()
     Comment = WithTrivia()
-    #Space = WithText()
     EndOfLine = WithText()
-    #EndOfFile = WithText()  # no se si es necesario ver Termination
 
     Identifier = WithSymbol()
-    DefIdentifier = WithSymbol()
-    RefIdentifier = WithSymbol()
+    #DefIdentifier = WithSymbol()
+    #RefIdentifier = WithSymbol()
     NL = WithText()
     #Identifier = WithText()
     #IdentifierContinue = WithText()
@@ -64,25 +45,9 @@ p5_lexer = Lexer(Token,
                 ])
 
 p5_lexer.add_patterns(
-    #('some_char', r'[0-9a-zA-Z]'),
-    #('literal', r"'({some_char}|[^\n'])*'"
-    #           r'|"({some_char}|[^\n"])*"'),
-
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
     ("LITERAL_SQ",  r"'(\\'|[^\n'])*'"),
-
-    #('end_of_line', r"\n|\r"),
-    #('bracket_char', r'(\[\"[0-9a-fA-F]+\"\])'),
-    #('digit', r"[0-9]"),
-    #('range', r"(\[({some_char}-{some_char})?\])"
-    #         r"|(\[({some_char})?\])"),
-    #('id_start', r"[_a-zA-Z]"),
-    #('id_continue', r"([0-9]|{id_start})*"),
-    #('id_def', r"{id_start}{id_continue}"),
     ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*")
-    #('id_ref', r"{id_def}[^<]"),
-    
-    
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
     #('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
     #               r"|{bracket_char})"
@@ -92,8 +57,6 @@ p5_lexer.add_patterns(
 )
 
 p5_lexer.add_rules(
-
-    #(Pattern('end_of_line'),    Token.EndOfLine),
     (Literal('\n'),             Token.NL),
     (Pattern(r"[ \r\t]+"),    Ignore()),
     (Pattern(r"#(.?)+"),        Token.Comment),
@@ -107,6 +70,7 @@ p5_lexer.add_rules(
     (Literal("("),              Token.LPar),
     (Literal(")"),              Token.RPar),
     (Literal("."),              Token.Dot),
+    # todo: evaluate quoting as tokens
     #(Literal("'"),              Token.SQuo),
     #(Pattern(r'\"'),             Token.DQuo),
     (Literal("["),              Token.LBra),

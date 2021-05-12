@@ -100,6 +100,8 @@ class Sequence(P5Node):
 class Primary(P5Node):
     """
     Primary: Base for... 
+
+    todo: suffix as boolean (remember desugaring the expression)
     """
     pass
 
@@ -142,12 +144,6 @@ class Suffix(Primary):
     suffixed=Field(type=T.Primary)
     op=Field(type=T.SuffixOp)
 
-
-#class PrimaryNode(Primary):
-#    """
-#    primary
-#    """
-#    toto=Field()
 
 class RefIdentifier(Primary):
     """
@@ -225,8 +221,6 @@ p5_grammar.add_rules(
     
     # main_rule=List(IdentifierNode(L.Identifier(match_text="first")),
     #               empty_valid=True),
-
-    # main_rule=GrammarNode(G.definition),
 
     #main_rule=Or(
     #    #Pick(List(G.comment,empty_valid=False), L.Termination),
