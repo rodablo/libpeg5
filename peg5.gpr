@@ -1,0 +1,33 @@
+library project Peg5 is
+
+   type Build_Mode_Type is ("dev", "prod");
+   Build_Mode : Build_Mode_Type := external ("BUILD_MODE", "dev");
+
+   for Languages use ("Ada");
+   for Library_Name use "peg5";
+   for Source_Dirs use ("src");
+   for Object_Dir use "build-peg/obj/" & Build_Mode;
+   for Library_Dir use "build-peg/lib/" & Build_Mode;
+   -- for Library_Kind use "static";
+
+   package Compiler is
+
+      Common_Args := ("-fPIC");
+
+      Mode_Args := ();
+      case Build_Mode is
+         when "dev" =>
+            Mode_Args := ("-g", "-O0", "-gnata", "-gnatwe");
+         when "prod" =>
+            Mode_Args := ("-g", "-O2");
+      end case;
+
+      for Default_Switches ("Ada") use Common_Args & Mode_Args;
+
+   end Compiler;
+
+   package Linker is
+   end Linker;
+
+end Peg5;
+
