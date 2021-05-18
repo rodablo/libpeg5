@@ -1,10 +1,10 @@
 --
---
+--  Peg5 Test Harness
 --
 with AUnit.Test_Suites;
 
-package AST_Tests.Suite is
+package Peg5_Harness is
 
    function Suite return AUnit.Test_Suites.Access_Test_Suite;
 
-end AST_Tests.Suite;
+end Peg5_Harness;

@@ -1,21 +1,10 @@
 --
 --
 --
-with AUnit.Test_Fixtures;
-with Libpeg5lang.Analysis;
+with AUnit.Test_Suites;
 
 package AST_Tests is
-   --
-   use Libpeg5lang.Analysis;
 
-   type AST_Test_Data is new AUnit.Test_Fixtures.Test_Fixture with record
-      Ctx : Analysis_Context := Create_Context (With_Trivia => True);
-      Unit : Analysis_Unit;
-   end record;
-
-   procedure Set_Up (T : in out AST_Test_Data);
-   -- procedure Tear_Down (T : in out AST_Test_Data);
-
-   procedure Test_00 (T : in out AST_Test_Data);
+   function Suite return AUnit.Test_Suites.Access_Test_Suite;
 
 end AST_Tests;

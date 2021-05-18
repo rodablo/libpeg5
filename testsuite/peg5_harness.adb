@@ -1,16 +1,18 @@
---
---
---
---with AUnit.Reporter.Text;
-with AUnit.Reporter.GNATtest;
-with AUnit.Run;
-with Peg5_Suite; --use Peg5.Suite;
+with Dummy_Tests;
+with AST_Tests;
 
-procedure Peg5_Harness is
-   procedure Runner is new AUnit.Run.Test_Runner (Peg5_Suite.Suite);
---   Reporter : AUnit.Reporter.Text.Text_Reporter;
-   Reporter : AUnit.Reporter.GNATtest.GNATtest_Reporter;
-begin
+with AUnit.Test_Caller;
 
-   Runner (Reporter);
+package body Peg5_Harness is
+
+   package Caller is new AUnit.Test_Caller (Dummy_Tests.SomeTestData);
+
+   function Suite return AUnit.Test_Suites.Access_Test_Suite is
+      Result : constant AUnit.Test_Suites.Access_Test_Suite := new AUnit.Test_Suites.Test_Suite;
+   begin
+      Result.Add_Test (AST_Tests.Suite);
+      Result.Add_Test (Caller.Create ("Test Dummy", Dummy_Tests.Test_00'Access));
+      return Result;
+   end Suite;
+
 end Peg5_Harness;
