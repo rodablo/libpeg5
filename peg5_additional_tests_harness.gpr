@@ -2,14 +2,14 @@ with "aunit";
 with "peg5.gpr";
 with "langkit/build/libpeg5lang.gpr";
 
-project Peg5_Harness is
+project Peg5_Additional_Tests_Harness is
 
    type Build_Mode_Type is ("dev", "prod");
    Build_Mode : Build_Mode_Type := external ("BUILD_MODE", "dev");
 
    for Languages use ("Ada");
-   for Main use ("peg5_harness_runner.adb");
-   for Source_Dirs use ("testsuite");
+   for Main use ("peg5_additional_tests_harness_runner.adb");
+   for Source_Dirs use ("additional");
    for Object_Dir use "build/obj/" & Build_Mode;
    for Exec_Dir use "build/obj/" & Build_Mode;
 
@@ -44,9 +44,9 @@ project Peg5_Harness is
       --        ("-p");
    -- end Builder;
 
-   package Ide is
-      for Vcs_Kind use "git";
-   end Ide;
+   --  package Ide is
+   --     for Vcs_Kind use "git";
+   --  end Ide;
 
-end Peg5_Harness;
+end Peg5_Additional_Tests_Harness;
 

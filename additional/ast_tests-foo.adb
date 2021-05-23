@@ -25,7 +25,7 @@ package body AST_Tests.Foo is
    procedure Set_Up (T : in out AST_Test_Data) is
    begin
       T.Ctx := Create_Context (With_Trivia => True);
-      T.Unit := Get_From_File (T.Ctx, "../../../../testsuite/test.peg");
+      T.Unit := Get_From_File (T.Ctx, "../../../../additional/test.peg");
    end Set_Up;
 
    procedure Tear_Down (T : in out AST_Test_Data) is

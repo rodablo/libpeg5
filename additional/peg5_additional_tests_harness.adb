@@ -3,7 +3,7 @@ with AST_Tests;
 
 with AUnit.Test_Caller;
 
-package body Peg5_Harness is
+package body Peg5_Additional_Tests_Harness is
 
    package Caller is new AUnit.Test_Caller (Dummy_Tests.SomeTestData);
 
@@ -15,4 +15,4 @@ package body Peg5_Harness is
       return Result;
    end Suite;
 
-end Peg5_Harness;
+end Peg5_Additional_Tests_Harness;
