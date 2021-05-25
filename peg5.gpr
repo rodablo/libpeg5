@@ -32,7 +32,7 @@ library project Peg5 is
    package Gnattest is
 
       for Subdir use "tests";
-      --  for Additional_Tests use "peg5_harness.gpr";
+      for Additional_Tests use "additional/test_peg5_additional.gpr";
 
    end Gnattest;
 

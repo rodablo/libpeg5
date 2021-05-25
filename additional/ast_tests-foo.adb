@@ -5,6 +5,7 @@ with AUnit.Assertions; use AUnit.Assertions;
 
 with Ada.Text_IO;           use Ada.Text_IO;
 --  with Ada.Integer_Text_IO;   use Ada.Integer_Text_IO;
+with GNAT.Source_Info;
 
 with Libpeg5lang.Analysis;  -- use Libpeg5lang.Analysis;
 with Libpeg5lang.Common;    use Libpeg5lang.Common;
@@ -25,16 +26,14 @@ package body AST_Tests.Foo is
    procedure Set_Up (T : in out AST_Test_Data) is
    begin
       T.Ctx := Create_Context (With_Trivia => True);
-      T.Unit := Get_From_File (T.Ctx, "../../../../additional/test.peg");
+      T.Unit := Get_From_File (T.Ctx, "../../../../../additional/test.peg");
    end Set_Up;
 
    procedure Tear_Down (T : in out AST_Test_Data) is
       package LAL renames Libpeg5lang.Analysis;
       pragma Unreferenced (LAL);
    begin
---  begin read only
 --  LAL.  .Destroy(T.Ctx);
---  end read only
       null;
    end Tear_Down;
 
@@ -48,6 +47,8 @@ package body AST_Tests.Foo is
         Find (T.Unit.Root, Kind_Is (Peg5_Dot)).Consume;
 
    begin
+      Put_Line (">>>>>>" & GNAT.Source_Info.File);
+      Put_Line (">>>>>>" & GNAT.Source_Info.Source_Location);
       Assert (Type_Defs'Length > 0, "Empty");
       Put_Line (Type_Defs'Length'Image);
       Assert (Type_Defs'Length = 18, "Diff");

@@ -3,8 +3,8 @@
 --
 with AUnit.Test_Suites;
 
-package Peg5_Additional_Tests_Harness is
+package test_peg5_additional is
 
    function Suite return AUnit.Test_Suites.Access_Test_Suite;
 
-end Peg5_Additional_Tests_Harness;
+end test_peg5_additional;

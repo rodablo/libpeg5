@@ -5,14 +5,14 @@ with AUnit.Reporter.Text;
 --  with AUnit.Reporter.GNATtest;
 --  with AUnit.Reporter.XML;
 with AUnit.Run;
-with Peg5_Additional_Tests_Harness;
+with test_peg5_additional;
 
-procedure Peg5_Additional_Tests_Harness_Runner is
-   procedure Runner is new AUnit.Run.Test_Runner (Peg5_Additional_Tests_Harness.Suite);
+procedure test_peg5_additional_runner is
+   procedure Runner is new AUnit.Run.Test_Runner (test_peg5_additional.Suite);
    Reporter : AUnit.Reporter.Text.Text_Reporter;
    --  Reporter : AUnit.Reporter.GNATtest.GNATtest_Reporter;
    --  Reporter : AUnit.Reporter.XML.XML_Reporter;
 begin
    Reporter.Set_Use_ANSI_Colors (Value => True);
    Runner (Reporter);
-end Peg5_Additional_Tests_Harness_Runner;
+end test_peg5_additional_runner;
