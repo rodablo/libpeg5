@@ -1,8 +1,10 @@
 from langkit.lexer import (
     Lexer, LexerToken, TokenFamily, 
     WithText, WithSymbol, WithTrivia,
-    Literal, Pattern, Ignore#, Alt, Case
-)
+    Literal, Pattern, Ignore
+    # , Alt, Case
+    )
+
 
 class Token(LexerToken):
 
@@ -20,8 +22,8 @@ class Token(LexerToken):
     LBra = WithText()
     RBra = WithText()
     Dot = WithText()
-    #SQuo = WithText()
-    #DQuo = WithText()
+    # SQuo = WithText()
+    # DQuo = WithText()
     Dash = WithText()
     Comment = WithTrivia()
     EndOfLine = WithText()
@@ -42,14 +44,14 @@ p5_lexer = Lexer(Token,
                  track_indent=False, 
                  pre_rules=[
                     (Pattern(r'\\\n[ \r\t]*'), Ignore())
-                ])
+                 ])
 
 p5_lexer.add_patterns(
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
     ("LITERAL_SQ",  r"'(\\'|[^\n'])*'"),
     ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*")
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
-    #('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
+    # ('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
     #               r"|{bracket_char})"
     #               r"(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}|\p{Nd}|\p{Mn}"
     #               r"|\p{Mc}"
@@ -58,7 +60,7 @@ p5_lexer.add_patterns(
 
 p5_lexer.add_rules(
     (Literal('\n'),             Token.NL),
-    (Pattern(r"[ \r\t]+"),    Ignore()),
+    (Pattern(r"[ \r\t]+"),      Ignore()),
     (Pattern(r"#(.?)+"),        Token.Comment),
     (Literal("<-"),             Token.LeftArrow),
     (Literal("/"),              Token.Slash),
@@ -75,7 +77,7 @@ p5_lexer.add_rules(
     #(Pattern(r'\"'),             Token.DQuo),
     (Literal("["),              Token.LBra),
     (Literal("]"),              Token.RBra),
-    (Literal("-"),          Token.Dash),
+    (Literal("-"),              Token.Dash),
     #(Pattern('{literal}'),      Token.Literal),
     (Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'),   Token.Literal),
 
@@ -105,6 +107,4 @@ p5_lexer.add_rules(
     #),
 
     #(Pattern('{id_continue}'),      Token.IdentifierContinue)
-
 )
-

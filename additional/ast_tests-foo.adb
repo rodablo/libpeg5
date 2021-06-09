@@ -47,6 +47,7 @@ package body AST_Tests.Foo is
         Find (T.Unit.Root, Kind_Is (Peg5_Dot)).Consume;
 
    begin
+      --  Print (T.Unit.Root.Sloc_Range);
       Put_Line (">>>>>>" & GNAT.Source_Info.File);
       Put_Line (">>>>>>" & GNAT.Source_Info.Source_Location);
       Assert (Type_Defs'Length > 0, "Empty");
