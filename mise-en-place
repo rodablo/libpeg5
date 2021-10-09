@@ -1,0 +1,11 @@
+cd ../langkit
+
+source ./mise-en-place
+
+cd -
+
+# to allow the python_driver to be imported
+PYTHONPATH=$LKT_ROOT/langkit/testsuite":$PYTHONPATH"; export PYTHONPATH
+
+# TODO: check if can avoid setting the environment at top level
+eval $(./peg5/manage.py setenv)

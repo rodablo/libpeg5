@@ -1,3 +1,6 @@
 #! /usr/bin/env sh
-python3 langkit/manage.py make --library-types static --debug --build-mode dev --verbosity debug --pretty-print --library-types=static,static-pic,relocatable --pass-on "emit railroad diagrams"
+python3 peg5/manage.py make --library-types relocatable --debug --build-mode dev --verbosity debug --pretty-print 
+
+#                            --pass-on "emit railroad diagrams"
+#                            --library-types=static,static-pic,relocatable \
 
