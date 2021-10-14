@@ -1,9 +1,6 @@
-from langkit.lexer import (
-    Lexer, LexerToken, TokenFamily, 
-    WithText, WithSymbol, WithTrivia,
-    Literal, Pattern, Ignore
-    # , Alt, Case
-    )
+from langkit.lexer import (Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, Ignore
+                           # TokenFamily, , Alt, Case
+                           )
 
 
 class Token(LexerToken):
@@ -40,11 +37,12 @@ class Token(LexerToken):
     #    Plus, LPar, RPar, Dot
     #)
 
-p5_lexer = Lexer(Token, 
-                 track_indent=False, 
-                 pre_rules=[
-                    (Pattern(r'\\\n[ \r\t]*'), Ignore())
-                 ])
+
+p5_lexer = Lexer(Token,
+                 track_indent=False,
+                 pre_rules=[(Pattern(r'\\\n[ \r\t]*'), Ignore())
+                            ]
+                 )
 
 p5_lexer.add_patterns(
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
@@ -87,14 +85,14 @@ p5_lexer.add_rules(
     #(Pattern(r"\[({some_char}-{some_char})*\]"), Token.Range2),
     #(Pattern(r"\[({some_char})*\]"), Token.Range),
 
-    # order of clauses is relevant... 
+    # order of clauses is relevant...
     #(Pattern('{literal_chars}'),    Token.LiteralChar),
 
     (Pattern('{IDENTIFIER}'), Token.Identifier),
     #(Pattern('{id_ref}'), Token.RefIdentifier),
 
     #Case(Literal("a"),
-    #    Alt(prev_token_cond=(Token.SQuo, Token.DQuo, Token.LBra, Token.Char), 
+    #    Alt(prev_token_cond=(Token.SQuo, Token.DQuo, Token.LBra, Token.Char),
     #        send=Token.Char,
     #        match_size=1),
     #    #

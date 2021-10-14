@@ -1,6 +1,19 @@
+from helpers.grammar import do_parse_and_dump
+
+SRC = u"""TemplType <- PrimType (LANGLE TemplType RANGLE)?
+
+ShiftExpr <- PrimExpr (ShiftOper PrimExpr)*
+
+ShiftOper <- LSHIFT / RSHIFT
+
+LANGLE <- '<' Spacing
+
+RANGLE <- '>' Spacing
+
+LSHIFT <- '<<' Spacing
+
+RSHIFT <- '>>' Spacing
+
 """
-"""
-from helpers import print_done
-#build_and_run(py_script='main.py')
-#print(os.environ.get('PYTHONPATH'))
-print_done()
+
+unit = do_parse_and_dump(SRC)

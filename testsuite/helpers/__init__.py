@@ -1,19 +1,23 @@
-import os, sys
+import os
+import sys
+
 
 def print_done() -> None:
     print('Done.')
+
 
 def run_make(additional_make_args=[]):
     """
     """
     from langkit.libmanage import ManageScript, DiagnosticError
+    from langkit.compile_context import CompileCtx
 
     class Manage(ManageScript):
-        def __init__(self, ctx) -> None:
+        def __init__(self, ctx: CompileCtx) -> None:
             self._cached_context = ctx
             super().__init__()
 
-        def create_context(self, args) -> 'CompileCtx':
+        def create_context(self, args) -> CompileCtx:
             return self._cached_context
 
         def do_generate(self, args) -> None:
@@ -25,7 +29,7 @@ def run_make(additional_make_args=[]):
 
         do_generate.__doc__ = ManageScript.do_generate.__doc__
 
-    argv = ['make'] #+ sys.argv[1:] 
+    argv = ['make']
     argv.append('--build-mode=dev')
     argv.append('--disable-all-mains')
     argv.append('--verbosity=none')
@@ -41,8 +45,8 @@ def run_make(additional_make_args=[]):
     sys.stdout.flush()
     sys.stderr.flush()
     if return_code != 0:
-        raise DiagnosticError()   
-    #
+        raise DiagnosticError()
+
     def update_os_environ(env_var: str, directory: str) -> None:
         path = os.environ.get(env_var)
         path = ('{}{}{}'.format(directory, os.path.pathsep, path) if path else env_var)
@@ -50,4 +54,3 @@ def run_make(additional_make_args=[]):
         #print(env_var,'===========', path)
 
     m.setup_environment(update_os_environ)
-

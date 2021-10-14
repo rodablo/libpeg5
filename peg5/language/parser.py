@@ -8,14 +8,18 @@ from langkit.expressions import (
     langkit_property, Self, Property
 )
 
+
 def ZeroOrMoreNewlinesHelper():
     return _(List(G.nl, empty_valid=True))
+
 
 def ZeroOrOneNewlinesHelper():
     return _(Opt(G.nl))
 
+
 def ZeroOrOneNewlinesOrTerminationHelper():
-    return _(Opt(Or(G.nl,L.Termination)))
+    return _(Opt(Or(G.nl, L.Termination)))
+
 
 @abstract
 class P5Node(ASTNode):
@@ -27,6 +31,7 @@ class P5Node(ASTNode):
     #                           )
     #                )
     pass
+
 
 class GrammarNode(P5Node):
     """
@@ -47,7 +52,7 @@ class GrammarNode(P5Node):
 #    #    Return the parameter associated with the given name, if any.
 #    #    """
 #    #    return Self.parameters.find(lambda p: p.param_identifier.text == name)
-#    
+#
 #    #@langkit_property(return_type=SelectorExpr.list, public=True)
 #    #def nth_expressions(n=(T.Int, 0)):
 #    #    """
@@ -99,7 +104,7 @@ class Sequence(P5Node):
 @abstract
 class Primary(P5Node):
     """
-    Primary: Base for... 
+    Primary: Base for...
 
     todo: suffix as boolean (remember desugaring the expression)
     """
@@ -113,20 +118,21 @@ class Op(P5Node):
     """
     pass
 
+
 class PrefixOp(Op):
     """
     .
     """
     enum_node = True
-    alternatives = [ 'and', 'not' ]
+    alternatives = ['and', 'not']
 
 
 class Prefix(Primary):
     """
     Prefix.
     """
-    op=Field(type=T.PrefixOp)
-    prefixed=Field(type=T.Primary)
+    op = Field(type=T.PrefixOp)
+    prefixed = Field(type=T.Primary)
 
 
 class SuffixOp(Op):
@@ -134,15 +140,15 @@ class SuffixOp(Op):
     .
     """
     enum_node = True
-    alternatives = [ 'optional', 'zero_or_more', 'one_or_more' ]
+    alternatives = ['optional', 'zero_or_more', 'one_or_more']
 
 
 class Suffix(Primary):
     """
     Base class for operators.
     """
-    suffixed=Field(type=T.Primary)
-    op=Field(type=T.SuffixOp)
+    suffixed = Field(type=T.Primary)
+    op = Field(type=T.SuffixOp)
 
 
 class RefIdentifier(Primary):
@@ -151,11 +157,12 @@ class RefIdentifier(Primary):
     """
     token_node = True
 
+
 class Group(Primary):
     """
     Group
     """
-    expression=Field(type=T.Expression)
+    expression = Field(type=T.Expression)
     pass
 
 
@@ -167,12 +174,14 @@ class Literal(Primary):
     #text=Field()
     pass
 
+
 class Class(Primary):
     """
     Class: char class
     """
-    range=Field()
+    range = Field()
     pass
+
 
 class Range(P5Node):
     """
@@ -189,11 +198,13 @@ class Range(P5Node):
 #    token_node=True
 #
 
+
 class Dot(Primary):
     """
     dummy
     """
     token_node = True
+
 
 class NL(Primary):
     """
@@ -202,8 +213,7 @@ class NL(Primary):
     pass
 
 
-
-#class CommentNode(P5Node):
+# class CommentNode(P5Node):
 #    """
 #    TODO: transform this in a document node
 #    """
@@ -218,7 +228,6 @@ G = p5_grammar
 
 p5_grammar.add_rules(
 
-    
     # main_rule=List(IdentifierNode(L.Identifier(match_text="first")),
     #               empty_valid=True),
 
@@ -227,9 +236,9 @@ p5_grammar.add_rules(
     #    Pick(G.definition, L.Termination),
     #    Pick(
     #        List(
-    #            G.definition, 
+    #            G.definition,
     #            list_cls=T.Definition.list, empty_valid=True
-    #        ), 
+    #        ),
     #        L.Termination
     #    ),
     #    #Pick(G.comment, L.Termination)
@@ -246,7 +255,7 @@ p5_grammar.add_rules(
     ),
 
     definition=Definition(
-        G.identifier, #(Token.DefIdentifier),
+        G.identifier,  # (Token.DefIdentifier),
         "<-",
         G.expression,
         #ZeroOrOneNewlinesOrTerminationHelper(),
@@ -257,7 +266,7 @@ p5_grammar.add_rules(
 
     expression=Expression(
         List(
-            G.sequence, 
+            G.sequence,
             list_cls=Sequence.list, sep="/"
         )
     ),
@@ -276,10 +285,10 @@ p5_grammar.add_rules(
                 PrefixOp.alt_not("!")
             ),
             G.suffix
-        ), 
+        ),
         G.suffix
     ),
-    
+
     suffix=Or(
         Suffix(
             G.primary,
@@ -299,7 +308,7 @@ p5_grammar.add_rules(
             #Group(Pick("(",G.expression,")")),
             G.group,
             Literal(Token.Literal),
-            Class(Pick("[",G.range,"]")),
+            Class(Pick("[", G.range, "]")),
             Dot(".")
         ),
         ZeroOrOneNewlinesHelper(),
@@ -317,14 +326,13 @@ p5_grammar.add_rules(
 
     #char = CharNode(Token.Char),
 
-    range = Or(
-        Range(Pick(Token.Char,"-",Token.Char)),
+    range=Or(
+        Range(Pick(Token.Char, "-", Token.Char)),
         Range(Token.Char)
     ),
 
     #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 
-    nl = NL(L.NL)
+    nl=NL(L.NL)
 
 )
-
