@@ -9,7 +9,7 @@ class Manage(ManageScript):
         return prepare_peg5_context()
 
     def do_generate(self, args):
-        args.generate_unparser = False
+        # TODO: args.generate_unparser = False
         args.report_unused_doc_entries = True
         super(Manage, self).do_generate(args)
 

@@ -1,0 +1,14 @@
+TemplType <- PrimType (LANGLE TemplType RANGLE)?
+
+ShiftExpr <- PrimExpr (ShiftOper PrimExpr)*
+
+ShiftOper <- LSHIFT / RSHIFT
+
+LANGLE <- '<' Spacing
+
+RANGLE <- '>' Spacing
+
+LSHIFT <- '<<' Spacing
+
+RSHIFT <- '>>' Spacing
+

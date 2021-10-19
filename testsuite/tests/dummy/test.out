@@ -11,19 +11,19 @@
 ===============
 GrammarNode test.peg:1:1-5:1
 |definitions:
-|  DefinitionList test.peg:1:1-5:1
+|  DefinitionNodeList test.peg:1:1-5:1
 |  |item_0:
-|  |  Definition test.peg:3:1-5:1
+|  |  DefinitionNode test.peg:3:1-5:1
 |  |  |id:
-|  |  |  Identifier test.peg:3:1-3:3: aa
+|  |  |  IdentifierNode test.peg:3:1-3:3: aa
 |  |  |expression:
-|  |  |  Expression test.peg:3:7-4:1
+|  |  |  ExpressionNode test.peg:3:7-4:1
 |  |  |  |choices:
-|  |  |  |  SequenceList test.peg:3:7-4:1
+|  |  |  |  SequenceNodeList test.peg:3:7-4:1
 |  |  |  |  |item_0:
-|  |  |  |  |  Sequence test.peg:3:7-4:1
+|  |  |  |  |  SequenceNode test.peg:3:7-4:1
 |  |  |  |  |  |primaries:
-|  |  |  |  |  |  PrimaryList test.peg:3:7-4:1
+|  |  |  |  |  |  PrimaryNodeList test.peg:3:7-4:1
 |  |  |  |  |  |  |item_0:
-|  |  |  |  |  |  |  RefIdentifier test.peg:3:7-3:9: bb
+|  |  |  |  |  |  |  RefIdentifierNode test.peg:3:7-3:9: bb
 ====END==DUMP==

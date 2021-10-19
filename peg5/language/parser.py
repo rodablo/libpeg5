@@ -2,11 +2,11 @@ from langkit.parsers import Grammar, Or, List, Pick, Opt, _  # , NoBacktrack as 
 
 from langkit.dsl import T, ASTNode, abstract, Field  # , synthetic
 
-from language.lexer import Token, p5_lexer as L
-
 from langkit.expressions import (
     langkit_property, Self  # , Property
 )
+
+from language.lexer import Token, p5_lexer as L
 
 
 def ZeroOrMoreNewlinesHelper():
@@ -22,22 +22,22 @@ def ZeroOrOneNewlinesOrTerminationHelper():
 
 
 @abstract
-class P5Node(ASTNode):
+class Peg5Node(ASTNode):
     """
-    Root node class for Peg5 AST nodes.
+    Root class for Peg5 AST nodes.
     """
     #toto = Property(Self.match(
-    #    lambda j=T.P5Node: 2323
+    #    lambda j=T.Peg5Node: 2323
     #                           )
     #                )
     pass
 
 
-class GrammarNode(P5Node):
+class GrammarNode(Peg5Node):
     """
     Root grammar node.
     """
-    definitions = Field(type=T.Definition.list)
+    definitions = Field(type=T.DefinitionNode.list)
 #
 #    #@langkit_property(return_type=T.Int, public=True)
 #    #def n_def():
@@ -61,17 +61,17 @@ class GrammarNode(P5Node):
 #    #    return Self.arms.at(n - 1).exprs_list
 
 
-class Definition(P5Node):
+class DefinitionNode(Peg5Node):
     """
     Definition
     """
-    id = Field(type=T.Identifier)
-    expression = Field(type=T.Expression)
+    id = Field(type=T.IdentifierNode)
+    expression = Field(type=T.ExpressionNode)
     #doc = Field(type=T.CommentNode)
     pass
 
 
-class Identifier(P5Node):
+class IdentifierNode(Peg5Node):
     """
     Identifier.
     """
@@ -85,26 +85,25 @@ class Identifier(P5Node):
         return Self.symbol
 
 
-class Expression(P5Node):
+class ExpressionNode(Peg5Node):
     """
     expression
     """
-    #choices = Field(type=T.P5Node.list)
-    choices = Field(type=T.Sequence.list)
+    choices = Field(type=T.SequenceNode.list)
 
 
-class Sequence(P5Node):
+class SequenceNode(Peg5Node):
     """
     sequence
     """
-    primaries = Field(type=T.Primary.list)
+    primaries = Field(type=T.PrimaryNode.list)
     pass
 
 
 @abstract
-class Primary(P5Node):
+class PrimaryNode(Peg5Node):
     """
-    Primary: Base for...
+    PrimaryNode: Base for...
 
     todo: suffix as boolean (remember desugaring the expression)
     """
@@ -112,30 +111,29 @@ class Primary(P5Node):
 
 
 @abstract
-class Op(P5Node):
+class OpNode(Peg5Node):
     """
     Base Op
     """
     pass
 
 
-class PrefixOp(Op):
+class PrefixOpNode(OpNode):
     """
-    .
     """
     enum_node = True
     alternatives = ['and', 'not']
 
 
-class Prefix(Primary):
+class PrefixNode(PrimaryNode):
     """
-    Prefix.
+    PrefixNode.
     """
-    op = Field(type=T.PrefixOp)
-    prefixed = Field(type=T.Primary)
+    op = Field(type=T.PrefixOpNode)
+    prefixed = Field(type=T.PrimaryNode)
 
 
-class SuffixOp(Op):
+class SuffixOpNode(OpNode):
     """
     .
     """
@@ -143,49 +141,47 @@ class SuffixOp(Op):
     alternatives = ['optional', 'zero_or_more', 'one_or_more']
 
 
-class Suffix(Primary):
+class SuffixNode(PrimaryNode):
     """
     Base class for operators.
     """
-    suffixed = Field(type=T.Primary)
-    op = Field(type=T.SuffixOp)
+    suffixed = Field(type=T.PrimaryNode)
+    op = Field(type=T.SuffixOpNode)
 
 
-class RefIdentifier(Primary):
+class RefIdentifierNode(PrimaryNode):
     """
-    IdentifierReference
+    .
     """
     token_node = True
 
 
-class Group(Primary):
+class GroupNode(PrimaryNode):
     """
-    Group
+    GroupNode
     """
-    expression = Field(type=T.Expression)
-    pass
+    expression = Field(type=T.ExpressionNode)
 
 
-class Literal(Primary):
+class LiteralNode(PrimaryNode):
     """
-    literal node
+    .
     """
     token_node = True
     #text=Field()
-    pass
 
 
-class Class(Primary):
+class CharClassNode(PrimaryNode):
     """
-    Class: char class
+    CharClassNode
     """
     range = Field()
     pass
 
 
-class Range(P5Node):
+class RangeNode(Peg5Node):
     """
-    range
+    RangeNode
     """
     #token_node=True
     pass
@@ -199,16 +195,16 @@ class Range(P5Node):
 #
 
 
-class Dot(Primary):
+class DotNode(PrimaryNode):
     """
-    dummy
+    .
     """
     token_node = True
 
 
-class NL(Primary):
+class NLNode(PrimaryNode):
     """
-    dummy
+    .
     """
     pass
 
@@ -221,8 +217,6 @@ class NL(Primary):
 #    #text = Field()
 
 
-#------------------------------------------------------------
-# this is imported in manage.py
 p5_grammar = Grammar('main_rule')
 G = p5_grammar
 
@@ -249,12 +243,13 @@ p5_grammar.add_rules(
             ZeroOrMoreNewlinesHelper(),
             G.definition,
             ZeroOrMoreNewlinesHelper(),
-            list_cls=T.Definition.list, empty_valid=True
+            list_cls=T.DefinitionNode.list,
+            empty_valid=True
         ),
         L.Termination
     ),
 
-    definition=Definition(
+    definition=DefinitionNode(
         G.identifier,  # (Token.DefIdentifier),
         "<-",
         G.expression,
@@ -262,27 +257,27 @@ p5_grammar.add_rules(
         L.NL
     ),
 
-    identifier=Identifier(Token.Identifier),
+    identifier=IdentifierNode(Token.Identifier),
 
-    expression=Expression(
+    expression=ExpressionNode(
         List(
             G.sequence,
-            list_cls=Sequence.list, sep="/"
+            list_cls=SequenceNode.list, sep="/"
         )
     ),
 
-    sequence=Sequence(
+    sequence=SequenceNode(
         List(
             G.prefix,
-            list_cls=Primary.list, empty_valid=True
+            list_cls=PrimaryNode.list, empty_valid=True
         )
     ),
 
     prefix=Or(
-        Prefix(
+        PrefixNode(
             Or(
-                PrefixOp.alt_and("&"),
-                PrefixOp.alt_not("!")
+                PrefixOpNode.alt_and("&"),
+                PrefixOpNode.alt_not("!")
             ),
             G.suffix
         ),
@@ -290,12 +285,12 @@ p5_grammar.add_rules(
     ),
 
     suffix=Or(
-        Suffix(
+        SuffixNode(
             G.primary,
             Or(
-                SuffixOp.alt_optional("?"),
-                SuffixOp.alt_zero_or_more("*"),
-                SuffixOp.alt_one_or_more("+")
+                SuffixOpNode.alt_optional("?"),
+                SuffixOpNode.alt_zero_or_more("*"),
+                SuffixOpNode.alt_one_or_more("+")
             )
         ),
         G.primary
@@ -304,35 +299,35 @@ p5_grammar.add_rules(
     primary=Pick(
         #ZeroOrMoreNewlinesHelper(),
         Or(
-            RefIdentifier(Token.Identifier),
+            RefIdentifierNode(Token.Identifier),
             #Group(Pick("(",G.expression,")")),
             G.group,
-            Literal(Token.Literal),
-            Class(Pick("[", G.range, "]")),
-            Dot(".")
+            LiteralNode(Token.Literal),
+            CharClassNode(Pick("[", G.range, "]")),
+            DotNode(".")
         ),
         ZeroOrOneNewlinesHelper(),
     ),
 
-    group=Group(
-        Pick(
-            "(",
-            ZeroOrMoreNewlinesHelper(),
-            G.expression,
-            ZeroOrMoreNewlinesHelper(),
-            ")"
-        )
+    # TODO: ZeroOrMoreNewlinesHelper here breaks the unparser generator
+    group=GroupNode(
+        Pick("(",
+             ZeroOrMoreNewlinesHelper(),
+             G.expression,
+             ZeroOrMoreNewlinesHelper(),
+             ")"
+             )
     ),
 
     #char = CharNode(Token.Char),
 
     range=Or(
-        Range(Pick(Token.Char, "-", Token.Char)),
-        Range(Token.Char)
+        RangeNode(Pick(Token.Char, "-", Token.Char)),
+        RangeNode(Token.Char)
     ),
 
     #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 
-    nl=NL(L.NL)
+    nl=NLNode(L.NL)
 
 )

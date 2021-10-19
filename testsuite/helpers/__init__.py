@@ -31,9 +31,10 @@ def run_make(additional_make_args=[]):
 
     argv = ['make']
     argv.append('--build-mode=dev')
-    argv.append('--disable-all-mains')
+    #argv.append('--disable-all-mains')
     argv.append('--verbosity=none')
-    argv.append('--no-ada-api')
+    #argv.append('--no-ada-api')
+    #argv.append('--generate-unparser')
     argv.extend(additional_make_args)
     #
     from language import prepare_peg5_context
@@ -51,6 +52,6 @@ def run_make(additional_make_args=[]):
         path = os.environ.get(env_var)
         path = ('{}{}{}'.format(directory, os.path.pathsep, path) if path else env_var)
         os.environ[env_var] = path
-        #print(env_var,'===========', path)
+        # print(env_var,' = ', path)
 
     m.setup_environment(update_os_environ)
