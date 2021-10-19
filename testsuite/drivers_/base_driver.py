@@ -21,7 +21,7 @@ class BaseDriver(DiffTestDriver):
     """
     @property
     def baseline_file(self) -> Tuple[str, bool]:
-        """Overrides the output baseline file.
+        """Overrides the output baseline filename.
         """
         return ('output', False)
 
