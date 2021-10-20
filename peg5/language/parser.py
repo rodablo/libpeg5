@@ -87,14 +87,14 @@ class IdentifierNode(Peg5Node):
 
 class ExpressionNode(Peg5Node):
     """
-    expression
+    Expression (also Pattern)
     """
     choices = Field(type=T.SequenceNode.list)
 
 
 class SequenceNode(Peg5Node):
     """
-    sequence
+    Sequence (also Alternative)
     """
     primaries = Field(type=T.PrimaryNode.list)
     pass
@@ -254,7 +254,7 @@ p5_grammar.add_rules(
         "<-",
         G.expression,
         #ZeroOrOneNewlinesOrTerminationHelper(),
-        L.NL
+        L.NL  # TODO: this extra NL is cheating...
     ),
 
     identifier=IdentifierNode(Token.Identifier),

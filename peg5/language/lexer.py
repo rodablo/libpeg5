@@ -46,7 +46,7 @@ p5_lexer = Lexer(Token,
 
 p5_lexer.add_patterns(
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
-    ("LITERAL_SQ",  r"'(\\'|[^\n'])*'"),
+    ("LITERAL_SQ", r"'(\\'|[^\n'])*'"),
     ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*")
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
     # ('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
@@ -57,27 +57,27 @@ p5_lexer.add_patterns(
 )
 
 p5_lexer.add_rules(
-    (Literal('\n'),             Token.NL),
-    (Pattern(r"[ \r\t]+"),      Ignore()),
-    (Pattern(r"#(.?)+"),        Token.Comment),
-    (Literal("<-"),             Token.LeftArrow),
-    (Literal("/"),              Token.Slash),
-    (Literal("&"),              Token.And),
-    (Literal("!"),              Token.Not),
-    (Literal("?"),              Token.Question),
-    (Literal("*"),              Token.Star),
-    (Literal("+"),              Token.Plus),
-    (Literal("("),              Token.LPar),
-    (Literal(")"),              Token.RPar),
-    (Literal("."),              Token.Dot),
+    (Literal('\n'), Token.NL),
+    (Pattern(r"[ \r\t]+"), Ignore()),
+    (Pattern(r"#(.?)+"), Token.Comment),
+    (Literal("<-"), Token.LeftArrow),
+    (Literal("/"), Token.Slash),
+    (Literal("&"), Token.And),
+    (Literal("!"), Token.Not),
+    (Literal("?"), Token.Question),
+    (Literal("*"), Token.Star),
+    (Literal("+"), Token.Plus),
+    (Literal("("), Token.LPar),
+    (Literal(")"), Token.RPar),
+    (Literal("."), Token.Dot),
     # todo: evaluate quoting as tokens
     #(Literal("'"),              Token.SQuo),
     #(Pattern(r'\"'),             Token.DQuo),
-    (Literal("["),              Token.LBra),
-    (Literal("]"),              Token.RBra),
-    (Literal("-"),              Token.Dash),
+    (Literal("["), Token.LBra),
+    (Literal("]"), Token.RBra),
+    (Literal("-"), Token.Dash),
     #(Pattern('{literal}'),      Token.Literal),
-    (Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'),   Token.Literal),
+    (Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
 
     (Pattern(r"\\[0-2][0-7][0-7]"), Token.Char),
 
