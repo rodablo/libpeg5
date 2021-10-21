@@ -9,49 +9,80 @@ Run the libpeg5lang testsuite.
 """
 import sys
 import os
-from typing import List  # , Union, Optional
-from e3.testsuite import (Testsuite, TestFinder, YAMLTestFinder)  # , ParsedTest)
-# from e3.testsuite.testcase_finder import TestFinderResult
+import collections.abc
+from typing import List
+from e3.env import Env
+import e3.yaml
 
-import drivers.python_driver
-# import drivers_.peg5_
-# import drivers_.grammar_driver
+from e3.testsuite import (
+    Testsuite, TestFinder, YAMLTestFinder
+)
+from e3.testsuite.testcase_finder import (
+    ProbingError, TestFinderResult, ParsedTest
+)
+
+from drivers.python_driver import PythonDriver
+
 from drivers_.peg5_ import Peg5Driver
 # from drivers_.grammar_driver import GrammarDriver
 from drivers_.parser_driver import ParserDriver
 
 
-# class GrammarTestFinder(TestFinder):
-#     @property
-#     def test_dedicated_directory(self):
-#         return True
-#
-#     def probe(self, testsuite, dirpath, dirnames, filenames) -> TestFinderResult:
-#         return [
-#             ParsedTest(
-#                 # Strip the ".txt" extension for the test name
-#                 test_name=testsuite.test_name(
-#                     os.path.join(dirpath, f[:-4])
-#                 ),
-#                 driver_cls=GrammarDriver,  # testsuite.test_driver_map[driver_name]
-#                 test_env={},
-#                 test_dir=dirpath,
-#                 # Preserve the ".txt" extension so that it matches "a.txt"
-#                 test_matcher=os.path.join(dirpath, f),
-#             )
-#             for f in filenames if f.endswith(".peg")
-#         ]
+class MultiTestFinder(TestFinder):
+    def probe(self,
+              testsuite: Testsuite,
+              dirpath: str,
+              dirnames: List[str],
+              filenames: List[str]) -> TestFinderResult:
+        # There is a testcase if there is a "multi_test.yaml" file
+        if "multi_test.yaml" not in filenames:
+            return None
+        yaml_file = os.path.join(dirpath, "multi_test.yaml")
+        try:
+            test_env = e3.yaml.load_with_config(yaml_file, Env().to_dict())
+        except e3.yaml.YamlError:
+            raise ProbingError("invalid syntax for test.yaml")
+        # Copied from YAMLTestFinder, see the comment there.
+        if test_env is None:
+            test_env = {}
+        elif not isinstance(test_env, collections.abc.Mapping):
+            raise ProbingError("invalid format for test.yaml")
+
+        driver_name = test_env.get("driver")
+        if driver_name is None:
+            driver_cls = None
+        else:
+            try:
+                driver_cls = testsuite.test_driver_map[driver_name]
+            except KeyError:
+                raise ProbingError("cannot find driver")
+
+        tests = []
+        for f in filenames:
+            base, extension = os.path.splitext(f)
+            if base and extension == '.input':
+                test_env_copy = test_env.copy()
+                test_env_copy['input_file'] = f
+                test_env_copy['output_file'] = base + '.output'
+                tests.append(ParsedTest(testsuite.test_name(os.path.join(dirpath, base)),
+                                        driver_cls,
+                                        test_env_copy,
+                                        dirpath
+                                        ))
+        return tests
 
 
-class P5_Testsuite(Testsuite):
-    """ The Peg5Testsuite """
+class __Testsuite(Testsuite):
     test_subdir = 'tests'
     test_driver_map = {
-        'python': drivers.python_driver.PythonDriver,
+        'python': PythonDriver,
         'peg5_': Peg5Driver,
-        # 'grammar': GrammarDriver,
         'parser': ParserDriver
     }
+
+    @property
+    def test_finders(self) -> List[TestFinder]:
+        return [YAMLTestFinder(), MultiTestFinder()]
 
     def add_options(self, parser):
         parser.add_argument(
@@ -109,23 +140,17 @@ class P5_Testsuite(Testsuite):
         self.env.control_condition_env = {
             'restricted_env': self.env.options.restricted_env,
         }
-        # next line makes the grammar available to import
-        sys.path.insert(1, os.path.abspath(os.path.join(self.root_dir, '..', 'peg5')))
+
         if self.env.options.local_build:
+            # next line makes the grammar available to import
+            sys.path.insert(1, os.path.abspath(os.path.join(self.root_dir, '..', 'peg5')))
             peg5_build_dir = os.path.join(self.working_dir, 'build')
             from helpers import run_make
             run_make(['--build-dir={}'.format(peg5_build_dir)])
 
-    # def tear_down(self):
-    #     super().tear_down()
-
-    @property
-    def test_finders(self) -> List[TestFinder]:
-        # return [YAMLTestFinder()]
-        # return [GrammarTestFinder()]
-        return [YAMLTestFinder()]  # , GrammarTestFinder()]
-        #return Union[Optional[TestFinder], List[YAMLTestFinder, GrammarTestFinder]]
+    def tear_down(self):
+        super().tear_down()
 
 
 if __name__ == '__main__':
-    sys.exit(P5_Testsuite().testsuite_main())
+    sys.exit(__Testsuite().testsuite_main())

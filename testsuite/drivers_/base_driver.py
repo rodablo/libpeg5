@@ -21,9 +21,11 @@ class BaseDriver(DiffTestDriver):
     """
     @property
     def baseline_file(self) -> Tuple[str, bool]:
-        """Overrides the output baseline filename.
+        """Overrides the output baseline filename and support 4 multi_test.
         """
-        return ('output', False)
+        output_file = self.test_env.get('output_file', 'output')
+        self.check_file(output_file)
+        return (output_file, False)
 
     @property
     def test_control_creator(self):

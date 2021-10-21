@@ -1,0 +1,4 @@
+driver: parser
+rule: range
+control:
+- [SKIP, "True", "Enable to tests the multi_test."]
