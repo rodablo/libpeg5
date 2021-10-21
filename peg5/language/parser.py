@@ -262,7 +262,7 @@ p5_grammar.add_rules(
     expression=ExpressionNode(
         List(
             G.sequence,
-            list_cls=SequenceNode.list, sep="/"
+            list_cls=SequenceNode.list, sep=L.Slash  # "/"
         )
     ),
 
@@ -276,7 +276,7 @@ p5_grammar.add_rules(
     prefix=Or(
         PrefixNode(
             Or(
-                PrefixOpNode.alt_and("&"),
+                PrefixOpNode.alt_and(L.And),  # "&"),
                 PrefixOpNode.alt_not("!")
             ),
             G.suffix
