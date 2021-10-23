@@ -171,32 +171,6 @@ class LiteralNode(PrimaryNode):
     #text=Field()
 
 
-class CharClassNode(PrimaryNode):
-    """
-    CharClassNode
-    """
-    range = Field()
-    pass
-
-
-class UnaryRangeNode(Peg5Node):
-    """
-    UnaryRangeNode
-    """
-    #token_node=True
-    a = Field()
-
-
-class BinaryRangeNode(Peg5Node):
-    """
-    BinaryRangeNode
-    """
-    #token_node=True
-    a = Field()
-    b = Field()
-    pass
-
-
 class CharNode(Peg5Node):
     """
     CharNode
@@ -211,6 +185,40 @@ class CharNode(Peg5Node):
 #        pass
     #char = Field()
     #token_node = True
+    pass
+
+
+@abstract
+class RangeNode(Peg5Node):
+    """
+    RangeNode.
+    """
+    pass
+
+
+class UnaryRangeNode(RangeNode):
+    """
+    UnaryRangeNode
+    """
+    #token_node=True
+    a = Field(type=T.CharNode)
+
+
+class BinaryRangeNode(RangeNode):
+    """
+    BinaryRangeNode
+    """
+    #token_node=True
+    a = Field(type=T.CharNode)
+    b = Field(type=T.CharNode)
+    pass
+
+
+class CharClassNode(PrimaryNode):
+    """
+    CharClassNode
+    """
+    range = Field(type=T.RangeNode)
     pass
 
 
