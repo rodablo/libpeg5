@@ -3,7 +3,7 @@ build
 __pycache__
 
 #
-out
+out/
 tmp
 
 #

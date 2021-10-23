@@ -1,3 +1,7 @@
 CharClassNode[1:1-1:12]
 |f_range:
-|  RangeNode[1:2-1:11]
+|  BinaryRangeNode[1:2-1:11]
+|  |f_a:
+|  |  CharNode[1:2-1:6]
+|  |f_b:
+|  |  CharNode[1:7-1:11]

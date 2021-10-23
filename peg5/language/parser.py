@@ -179,20 +179,39 @@ class CharClassNode(PrimaryNode):
     pass
 
 
-class RangeNode(Peg5Node):
+class UnaryRangeNode(Peg5Node):
     """
-    RangeNode
+    UnaryRangeNode
     """
     #token_node=True
+    a = Field()
+
+
+class BinaryRangeNode(Peg5Node):
+    """
+    BinaryRangeNode
+    """
+    #token_node=True
+    a = Field()
+    b = Field()
     pass
 
-#
-#class Char(P5Node):
-#    """
-#    char node
-#    """
-#    token_node=True
-#
+
+class CharNode(Peg5Node):
+    """
+    CharNode
+    """
+#    needs extension implementation
+#    @langkit_property(return_type=T.Character, external=True, public=True,
+#                      uses_entity_info=False, uses_envs=False)
+#    def denoted_value():
+#        """
+#        Return the value that this literal denotes.
+#        """
+#        pass
+    #char = Field()
+    #token_node = True
+    pass
 
 
 class DotNode(PrimaryNode):
@@ -319,11 +338,11 @@ p5_grammar.add_rules(
              )
     ),
 
-    #char = CharNode(Token.Char),
+    char=CharNode(Or(Token.Char, L.Dot)),
 
     range=Or(
-        RangeNode(Pick(Token.Char, "-", Token.Char)),
-        RangeNode(Token.Char)
+        BinaryRangeNode(G.char, "-", G.char),
+        UnaryRangeNode(G.char)
     ),
 
     #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),

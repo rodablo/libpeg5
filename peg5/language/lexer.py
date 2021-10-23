@@ -7,6 +7,7 @@ class Token(LexerToken):
 
     Literal = WithText()
     Char = WithText()
+
     LeftArrow = WithText()
     Slash = WithText()
     And = WithText()
@@ -38,25 +39,33 @@ class Token(LexerToken):
     #)
 
 
-p5_lexer = Lexer(Token,
-                 track_indent=False,
-                 pre_rules=[(Pattern(r'\\\n[ \r\t]*'), Ignore())
-                            ]
-                 )
+p5_lexer = Lexer(
+    Token,
+    track_indent=False,
+    pre_rules=[
+        (Pattern(r'\\\n[ \r\t]*'), Ignore())
+    ]
+)
 
 p5_lexer.add_patterns(
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
     ("LITERAL_SQ", r"'(\\'|[^\n'])*'"),
-    ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*")
+    ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*"),
+    ('OCTAL_CHAR', r"([0-2][0-7][0-7]|[0-7][0-7]?)"),
+    ('ESCAPE_1_CHAR', r'"|\[|\]|r|t|n|\\'),
+    ('ESCAPE_2_CHAR', r"'"),
+    ('CHAR', r"\.|(\\({OCTAL_CHAR}|{ESCAPE_1_CHAR}|{ESCAPE_2_CHAR}))"),
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
     # ('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
     #               r"|{bracket_char})"
     #               r"(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}|\p{Nd}|\p{Mn}"
     #               r"|\p{Mc}"
     #               r"|_|{bracket_char})*"),
+    #TODO: this needs to be tokenized too.... az.\n\t
 )
 
 p5_lexer.add_rules(
+    #
     (Literal('\n'), Token.NL),
     (Pattern(r"[ \r\t]+"), Ignore()),
     (Pattern(r"#(.?)+"), Token.Comment),
@@ -79,11 +88,7 @@ p5_lexer.add_rules(
     #(Pattern('{literal}'),      Token.Literal),
     (Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
 
-    (Pattern(r"\\[0-2][0-7][0-7]"), Token.Char),
-
-    #(Pattern(r"{some_char}-{some_char}|{some_char}"), Token.Range),
-    #(Pattern(r"\[({some_char}-{some_char})*\]"), Token.Range2),
-    #(Pattern(r"\[({some_char})*\]"), Token.Range),
+    (Pattern('{CHAR}'), Token.Char),
 
     # order of clauses is relevant...
     #(Pattern('{literal_chars}'),    Token.LiteralChar),
