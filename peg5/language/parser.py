@@ -105,7 +105,7 @@ class PrimaryNode(Peg5Node):
     """
     PrimaryNode: Base for...
 
-    todo: suffix as boolean (remember desugaring the expression)
+    todo: suffix as boolean (remember to desugar the expression)
     """
     pass
 
@@ -165,7 +165,8 @@ class GroupNode(PrimaryNode):
 
 class LiteralNode(PrimaryNode):
     """
-    .
+    LiteralNode
+    TODO: define this as a sequence of CharNodes to allow escapes.
     """
     token_node = True
     #text=Field()
@@ -175,14 +176,14 @@ class CharNode(Peg5Node):
     """
     CharNode
     """
-#    needs extension implementation
-#    @langkit_property(return_type=T.Character, external=True, public=True,
-#                      uses_entity_info=False, uses_envs=False)
-#    def denoted_value():
-#        """
-#        Return the value that this literal denotes.
-#        """
-#        pass
+    # needs extension implementation
+    @langkit_property(return_type=T.Character, external=True, public=True,
+                      uses_entity_info=False, uses_envs=False)
+    def denoted_value():
+        """
+        Return the value that this literal denotes.
+        """
+        pass
     #char = Field()
     #token_node = True
     pass
