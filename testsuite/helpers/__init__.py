@@ -9,26 +9,7 @@ def print_done() -> None:
 def run_make(additional_make_args=[]):
     """
     """
-    from langkit.libmanage import ManageScript, DiagnosticError
-    from langkit.compile_context import CompileCtx
-
-    class Manage(ManageScript):
-        def __init__(self, ctx: CompileCtx) -> None:
-            self._cached_context = ctx
-            super().__init__()
-
-        def create_context(self, args) -> CompileCtx:
-            return self._cached_context
-
-        def do_generate(self, args) -> None:
-            args.generate_unparser = False
-            args.generate_ada_api = False
-            # TODO check if the next one make sense
-            args.report_unused_doc_entries = True
-            super(Manage, self).do_generate(args)
-
-        do_generate.__doc__ = ManageScript.do_generate.__doc__
-
+    from langkit.libmanage import DiagnosticError
     argv = ['make']
     argv.append('--build-mode=dev')
     #argv.append('--disable-all-mains')
@@ -37,8 +18,8 @@ def run_make(additional_make_args=[]):
     #argv.append('--generate-unparser')
     argv.extend(additional_make_args)
     #
-    from language import prepare_peg5_context
-    m = Manage(prepare_peg5_context())
+    from language import Manage
+    m = Manage()
 
     return_code = m.run_no_exit(argv)
     # Flush stdout and stderr, so that diagnostics appear deterministically
