@@ -6,7 +6,7 @@ from langkit.expressions import (
     langkit_property, Self  # , Property
 )
 
-from language.lexer import Token, p5_lexer as L
+from peg5.language.lexer import Token, p5_lexer as L
 
 
 def ZeroOrMoreNewlinesHelper():
@@ -297,7 +297,7 @@ p5_grammar.add_rules(
     sequence=SequenceNode(
         List(
             G.prefix,
-            list_cls=PrimaryNode.list, empty_valid=True
+            list_cls=PrimaryNode.list, empty_valid=False
         )
     ),
 
@@ -331,7 +331,7 @@ p5_grammar.add_rules(
             #Group(Pick("(",G.expression,")")),
             G.group,
             LiteralNode(Token.Literal),
-            CharClassNode(Pick("[", G.range, "]")),
+            G.char_class,
             DotNode(".")
         ),
         ZeroOrOneNewlinesHelper(),
@@ -344,6 +344,13 @@ p5_grammar.add_rules(
              G.expression,
              ZeroOrMoreNewlinesHelper(),
              ")"
+             )
+    ),
+
+    char_class=CharClassNode(
+        Pick("[",
+             G.range,
+             "]"
              )
     ),
 

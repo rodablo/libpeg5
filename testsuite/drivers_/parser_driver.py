@@ -61,7 +61,8 @@ class ParserDriver(BaseDriver):
         self.check_file(input_file)
 
         # Build the command line for the "parse" process we are going to run
-        base_argv = ['peg5_parse']
+        # TODO: may be i can get the name from the Manage class?
+        base_argv = ['libpeg5lang_parse']
         misc_argv = []
 
         file_args = ['-f', input_file]
