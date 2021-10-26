@@ -8,4 +8,4 @@ cd -
 PYTHONPATH=$LKT_ROOT/testsuite":$PYTHONPATH"; export PYTHONPATH
 
 # TODO: check if can avoid setting the environment at top level
-eval $(./peg5/manage.py setenv)
+eval $(./manage.py setenv)
