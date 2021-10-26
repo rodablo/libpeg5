@@ -87,7 +87,7 @@ class IdentifierNode(Peg5Node):
 
 class ExpressionNode(Peg5Node):
     """
-    Expression (also Pattern)
+    Expression
     """
     choices = Field(type=T.SequenceNode.list)
 
@@ -111,29 +111,29 @@ class PrimaryNode(Peg5Node):
 
 
 @abstract
-class OpNode(Peg5Node):
+class OperandNode(Peg5Node):
     """
-    Base Op
+    Abstract Base Operator Node.
     """
     pass
 
 
-class PrefixOpNode(OpNode):
+class PrefixOperandNode(OperandNode):
     """
     """
     enum_node = True
     alternatives = ['and', 'not']
 
 
-class PrefixNode(PrimaryNode):
+class PrefixedNode(PrimaryNode):
     """
-    PrefixNode.
+    Prefixed Primary Node.
     """
-    op = Field(type=T.PrefixOpNode)
-    prefixed = Field(type=T.PrimaryNode)
+    prefix = Field(type=T.PrefixOperandNode)
+    primary = Field(type=T.PrimaryNode)
 
 
-class SuffixOpNode(OpNode):
+class SuffixOperandNode(OperandNode):
     """
     .
     """
@@ -141,12 +141,12 @@ class SuffixOpNode(OpNode):
     alternatives = ['optional', 'zero_or_more', 'one_or_more']
 
 
-class SuffixNode(PrimaryNode):
+class SuffixedNode(PrimaryNode):
     """
-    Base class for operators.
+    Suffixed Primary Node.
     """
-    suffixed = Field(type=T.PrimaryNode)
-    op = Field(type=T.SuffixOpNode)
+    primary = Field(type=T.PrimaryNode)
+    suffix = Field(type=T.SuffixOperandNode)
 
 
 class RefIdentifierNode(PrimaryNode):
@@ -158,7 +158,7 @@ class RefIdentifierNode(PrimaryNode):
 
 class GroupNode(PrimaryNode):
     """
-    GroupNode
+    Grouped Expression
     """
     expression = Field(type=T.ExpressionNode)
 
@@ -166,7 +166,7 @@ class GroupNode(PrimaryNode):
 class LiteralNode(PrimaryNode):
     """
     LiteralNode
-    TODO: define this as a sequence of CharNodes to allow escapes.
+    TODO: define this as a choice of CharNodes to allow escapes.
     """
     token_node = True
     #text=Field()
@@ -290,35 +290,38 @@ p5_grammar.add_rules(
     expression=ExpressionNode(
         List(
             G.sequence,
-            list_cls=SequenceNode.list, sep=L.Slash  # "/"
+            list_cls=SequenceNode.list, 
+            sep="/", 
+            empty_valid=False
         )
     ),
 
     sequence=SequenceNode(
         List(
-            G.prefix,
-            list_cls=PrimaryNode.list, empty_valid=False
+            G.prefixed,
+            list_cls=PrimaryNode.list, 
+            empty_valid=False
         )
     ),
 
-    prefix=Or(
-        PrefixNode(
+    prefixed=Or(
+        PrefixedNode(
             Or(
-                PrefixOpNode.alt_and(L.And),  # "&"),
-                PrefixOpNode.alt_not("!")
+                PrefixOperandNode.alt_and("&"),
+                PrefixOperandNode.alt_not("!")
             ),
-            G.suffix
+            G.suffixed
         ),
-        G.suffix
+        G.suffixed
     ),
 
-    suffix=Or(
-        SuffixNode(
+    suffixed=Or(
+        SuffixedNode(
             G.primary,
             Or(
-                SuffixOpNode.alt_optional("?"),
-                SuffixOpNode.alt_zero_or_more("*"),
-                SuffixOpNode.alt_one_or_more("+")
+                SuffixOperandNode.alt_optional("?"),
+                SuffixOperandNode.alt_zero_or_more("*"),
+                SuffixOperandNode.alt_one_or_more("+")
             )
         ),
         G.primary
