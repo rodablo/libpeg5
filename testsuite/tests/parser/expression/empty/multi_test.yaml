@@ -1,2 +1,4 @@
 driver: parser
 rule: expression
+control:
+- [XFAIL, "True", "TODO: Expressions can't be empty."]

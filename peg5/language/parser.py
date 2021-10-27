@@ -1,6 +1,6 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, _  # , NoBacktrack as cut, Null
+from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack, _  # , NoBacktrack as cut, Null
 
-from langkit.dsl import T, ASTNode, abstract, Field  # , synthetic
+from langkit.dsl import T, ASTNode, Annotations, abstract, has_abstract_list, Field  # , synthetic
 
 from langkit.expressions import (
     langkit_property, Self  # , Property
@@ -237,6 +237,24 @@ class NLNode(PrimaryNode):
     pass
 
 
+#@has_abstract_list
+@abstract
+class AbstractLiteral(PrimaryNode):
+    pass
+
+
+class QuotedLiteral(AbstractLiteral):
+    """
+    """
+    #annotations = Annotations(repr_name="SQuote")
+    token_node = True
+
+
+class EscapedCharLiteral(AbstractLiteral):
+    token_node = True
+
+
+
 # class CommentNode(P5Node):
 #    """
 #    TODO: transform this in a document node
@@ -322,7 +340,7 @@ p5_grammar.add_rules(
                 SuffixOperandNode.alt_optional("?"),
                 SuffixOperandNode.alt_zero_or_more("*"),
                 SuffixOperandNode.alt_one_or_more("+")
-            )
+            ), #cut(),
         ),
         G.primary
     ),
@@ -335,7 +353,8 @@ p5_grammar.add_rules(
             G.group,
             LiteralNode(Token.Literal),
             G.char_class,
-            DotNode(".")
+            DotNode(".")#,
+            #G.literal
         ),
         ZeroOrOneNewlinesHelper(),
     ),
@@ -351,7 +370,7 @@ p5_grammar.add_rules(
     ),
 
     char_class=CharClassNode(
-        Pick("[",
+        Pick("[",  # cut
              G.range,
              "]"
              )
@@ -366,6 +385,24 @@ p5_grammar.add_rules(
 
     #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 
-    nl=NLNode(L.NL)
+    nl=NLNode(L.NL),
 
+    #literal=SingleQuoteLiteral(Token.Toto),
+    
+
+    literal=Pick(
+        "'",
+        Opt(
+            List(
+                Or(
+                    QuotedLiteral(Token.NonEscapedChars),
+                    EscapedCharLiteral(Token.Char)
+                ),
+                list_cls=PrimaryNode.list, 
+                empty_valid=True
+            )
+        ),
+        NoBacktrack(),
+        "'"
+    )
 )

@@ -1,0 +1,3 @@
+18.input:1:4: Expected ''', got Termination
+PrimaryNodeList[1:2-1:4]
+|  EscapedCharLiteral[1:2-1:4]: \\7

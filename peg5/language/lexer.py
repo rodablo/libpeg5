@@ -20,7 +20,8 @@ class Token(LexerToken):
     LBra = WithText()
     RBra = WithText()
     Dot = WithText()
-    # SQuo = WithText()
+    SQuote = WithText()
+    NonEscapedChars = WithText()
     # DQuo = WithText()
     Dash = WithText()
     Comment = WithTrivia()
@@ -49,12 +50,14 @@ p5_lexer = Lexer(
 
 p5_lexer.add_patterns(
     ("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
-    ("LITERAL_SQ", r"'(\\'|[^\n'])*'"),
+    #("LITERAL_SQ", r"'(\\'|[^\n'])*'"),
     ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*"),
     ('OCTAL_CHAR', r"([0-2][0-7][0-7]|[0-7][0-7]?)"),
     ('ESCAPE_1_CHAR', r'"|\[|\]|r|t|n|\\'),
-    ('ESCAPE_2_CHAR', r"'"),
+    ('ESCAPE_2_CHAR', r"«|\*|'"),
     ('CHAR', r"\.|(\\({OCTAL_CHAR}|{ESCAPE_1_CHAR}|{ESCAPE_2_CHAR}))"),
+    ('NON_ESCAPED_CHARS', r"[^'\\]+"),
+
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
     # ('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
     #               r"|{bracket_char})"
@@ -86,16 +89,20 @@ p5_lexer.add_rules(
     (Literal("]"), Token.RBra),
     (Literal("-"), Token.Dash),
     #(Pattern('{literal}'),      Token.Literal),
-    (Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
+    #(Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
+    (Pattern('({LITERAL_DBQ})'), Token.Literal),
 
     (Pattern('{CHAR}'), Token.Char),
 
     # order of clauses is relevant...
     #(Pattern('{literal_chars}'),    Token.LiteralChar),
 
-    (Pattern('{IDENTIFIER}'), Token.Identifier),
     #(Pattern('{id_ref}'), Token.RefIdentifier),
-
+    
+    (Literal("'"), Token.SQuote),
+    (Pattern('{NON_ESCAPED_CHARS}'), Token.NonEscapedChars),
+    (Pattern('{IDENTIFIER}'), Token.Identifier),
+    
     #Case(Literal("a"),
     #    Alt(prev_token_cond=(Token.SQuo, Token.DQuo, Token.LBra, Token.Char),
     #        send=Token.Char,

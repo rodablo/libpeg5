@@ -1,0 +1,3 @@
+PrimaryNodeList[1:2-1:6]
+|  EscapedCharLiteral[1:2-1:4]: \\7
+|  QuotedLiteral[1:4-1:6]: cd

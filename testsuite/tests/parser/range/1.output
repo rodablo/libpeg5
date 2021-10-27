@@ -1,0 +1,5 @@
+BinaryRangeNode[1:1-1:10]
+|f_a:
+|  CharNode[1:1-1:5]
+|f_b:
+|  CharNode[1:6-1:10]

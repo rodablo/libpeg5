@@ -1,4 +1,4 @@
-input:1:2: Expected '.', got Termination
-SequenceNode[1:1-1:1]
+SequenceNode[1:1-1:2]
 |f_primaries:
-|  PrimaryNodeList[1:1-1:1]: <empty list>
+|  PrimaryNodeList[1:1-1:2]
+|  |  DotNode[1:1-1:2]: .
