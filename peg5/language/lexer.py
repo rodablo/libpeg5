@@ -1,5 +1,5 @@
-from langkit.lexer import (Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, Ignore
-                           # TokenFamily, , Alt, Case
+from langkit.lexer import (Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, Ignore,
+                           TokenFamily, Alt, Case
                            )
 
 
@@ -71,7 +71,6 @@ p5_lexer.add_rules(
     #
     (Literal('\n'), Token.NL),
     (Pattern(r"[ \r\t]+"), Ignore()),
-    (Pattern(r"#(.?)+"), Token.Comment),
     (Literal("<-"), Token.LeftArrow),
     (Literal("/"), Token.Slash),
     (Literal("&"), Token.And),
@@ -98,6 +97,7 @@ p5_lexer.add_rules(
     #(Pattern('{literal_chars}'),    Token.LiteralChar),
 
     #(Pattern('{id_ref}'), Token.RefIdentifier),
+    (Pattern(r"#(.?)+"), Token.Comment),
     
     (Literal("'"), Token.SQuote),
     (Pattern('{NON_ESCAPED_CHARS}'), Token.NonEscapedChars),
