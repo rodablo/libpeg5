@@ -426,7 +426,8 @@ p5_grammar.add_rules(
         "'"
     ),
     
-    charCharNode(Token.Char),
+    char=Or(
+            CharNode(Token.Char),
 #            Pick(
 #                Token.Escape,
 #                NoBacktrack((),
