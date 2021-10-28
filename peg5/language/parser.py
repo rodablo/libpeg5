@@ -1,4 +1,4 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack, _  # , NoBacktrack as cut, Null
+from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack, _, Skip  # , NoBacktrack as cut, Null
 
 from langkit.dsl import T, ASTNode, Annotations, abstract, has_abstract_list, Field  # , synthetic
 
@@ -163,30 +163,6 @@ class GroupNode(PrimaryNode):
     expression = Field(type=T.ExpressionNode)
 
 
-class LiteralNode(PrimaryNode):
-    """
-    LiteralNode
-    TODO: define this as a choice of CharNodes to allow escapes.
-    """
-    token_node = True
-    #text=Field()
-
-
-class CharNode(Peg5Node):
-    """
-    CharNode
-    """
-    # needs extension implementation
-    @langkit_property(return_type=T.Character, external=True, public=True,
-                      uses_entity_info=False, uses_envs=False)
-    def denoted_value():
-        """
-        Return the value that this literal denotes.
-        """
-        pass
-    #char = Field()
-    #token_node = True
-    pass
 
 
 @abstract
@@ -202,7 +178,7 @@ class UnaryRangeNode(RangeNode):
     UnaryRangeNode
     """
     #token_node=True
-    a = Field(type=T.CharNode)
+    a = Field(type=T.AbstractChar)
 
 
 class BinaryRangeNode(RangeNode):
@@ -210,8 +186,8 @@ class BinaryRangeNode(RangeNode):
     BinaryRangeNode
     """
     #token_node=True
-    a = Field(type=T.CharNode)
-    b = Field(type=T.CharNode)
+    a = Field(type=T.AbstractChar)
+    b = Field(type=T.AbstractChar)
     pass
 
 
@@ -243,16 +219,26 @@ class AbstractLiteral(PrimaryNode):
     pass
 
 
-class QuotedLiteral(AbstractLiteral):
-    """
-    """
-    #annotations = Annotations(repr_name="SQuote")
-    token_node = True
+#class LiteralNode(PrimaryNode):
+#    """
+#    LiteralNode
+#    TODO: define this as a choice of CharNodes to allow escapes.
+#    """
+#    #token_node = True
+#    #text=Field()
+#    pass
+
+class LiteralNode(AbstractLiteral):
+    pass
+    literals = Field(type=T.AbstractChar.list) 
 
 
-class EscapedCharLiteral(AbstractLiteral):
-    token_node = True
-
+#class NonEscapedLiteral(AbstractLiteral):
+#    token_node = True
+#
+#
+#class EscapedCharLiteral(AbstractLiteral):
+#    escaped_char = Field(type=CharNode)
 
 
 # class CommentNode(P5Node):
@@ -262,6 +248,31 @@ class EscapedCharLiteral(AbstractLiteral):
 #    pass
 #    #text = Field()
 
+@abstract
+class AbstractChar(Peg5Node):
+    token_node = True
+    pass
+
+class CharNode(AbstractChar):
+    """
+    """
+    # needs extension implementation
+    @langkit_property(return_type=T.Character, external=True, public=True,
+                      uses_entity_info=False, uses_envs=False)
+    def denoted_value():
+        """
+        Return the value that this literal denotes.
+        """
+        pass
+    #char = Field()
+    pass
+
+class EscapedChar(AbstractChar):
+    pass
+
+class EscapedOctalChar(AbstractChar):
+    pass
+    
 
 p5_grammar = Grammar('main_rule')
 G = p5_grammar
@@ -351,7 +362,7 @@ p5_grammar.add_rules(
             RefIdentifierNode(Token.Identifier),
             #Group(Pick("(",G.expression,")")),
             G.group,
-            LiteralNode(Token.Literal),
+            G.literal,
             G.char_class,
             DotNode(".")#,
             #G.literal
@@ -376,7 +387,6 @@ p5_grammar.add_rules(
              )
     ),
 
-    char=CharNode(Or(Token.Char, L.Dot)),
 
     range=Or(
         BinaryRangeNode(G.char, "-", G.char),
@@ -392,17 +402,39 @@ p5_grammar.add_rules(
 
     literal=Pick(
         "'",
-        Opt(
+        LiteralNode(
             List(
-                Or(
-                    QuotedLiteral(Token.NonEscapedChars),
-                    EscapedCharLiteral(Token.Char)
-                ),
-                list_cls=PrimaryNode.list, 
+                G.char,
+#                Or(
+#                    NonEscapedLiteral(Token.Literal),
+#                    EscapedCharLiteral(G.char),
+#                    #Pick(
+#                    #    "\\", 
+#                    #    NoBacktrack(),
+#                    #    Or(
+#                    #        OctalEscapedLiteral(Token.Octal),
+#                    #        Escape(Token.Escape),
+#                    #        EscapedCharLiteral(Token.Char),
+#                    #    ),
+#                    ##),
+#                ),
+                list_cls=AbstractChar.list,
                 empty_valid=True
             )
         ),
         NoBacktrack(),
         "'"
+    ),
+    
+    charCharNode(Token.Char),
+#            Pick(
+#                Token.Escape,
+#                NoBacktrack((),
+#                Or(
+                    EscapedChar(Token.Escaped),
+                    EscapedOctalChar(Token.Octal),
+#                )
+#            )
+#       )
     )
 )
