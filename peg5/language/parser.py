@@ -60,11 +60,13 @@ class Peg5Node(ASTNode):
 #    #    return Self.arms.at(n - 1).exprs_list
 
 
+@has_abstract_list
 class Definition(Peg5Node):
     """
     Definition
     """
     id = Field(type=T.Identifier)
+    #expression = Field(type=T.ExpressionAsList)
     expression = Field(type=T.Expression)
     #expression = Field(type=T.Sequence.list)
 
@@ -73,6 +75,18 @@ class Definition(Peg5Node):
         add_to_env_kv(Self.id.sym, Self)
     )
     pass
+
+
+class Definitions(Definition.list):
+
+    annotations = Annotations(repr_name="Grammar")
+
+    @langkit_property(return_type=T.Int, public=True)
+    def n_dummy():
+        """
+        Return the number of definitions in this grammar
+        """
+        return Self.length
 
 
 class Identifier(Peg5Node):
@@ -90,6 +104,7 @@ class Identifier(Peg5Node):
         """
         return Self.symbol
 
+
 @abstract
 @has_abstract_list
 class AbstractPrimary(Peg5Node):
@@ -99,14 +114,22 @@ class AbstractPrimary(Peg5Node):
     """
     pass
 
+
 # this way i suspect is how implement the specialized list
-# this class replace expression
+# this class replace sequence
+@has_abstract_list
 class PrimaryList(AbstractPrimary.list):
+    annotations = Annotations(repr_name="Primaries")
     pass
 
-#class PrimaryList2(AbstractPrimary.list):
-#    pass
+#class ExpressionAsList(PrimaryList.list):
+#    annotations = Annotations(repr_name="Expression")
 
+#
+#class ExpressionAsList(AbstractPrimary.list):
+#    annotations = Annotations(repr_name="ExpressionAsList")
+#    pass
+#
 
 # TODO: making Expression subclass abstractPrimary make it composite
 # and make Group redundant
@@ -114,15 +137,20 @@ class Expression(AbstractPrimary):
     """
     Expression
     """
-    choices = Field(type=T.Sequence.list)
+    choices = Field(type=T.Choices)
 
 
+@has_abstract_list
 class Sequence(Peg5Node):
     """
     Sequence (also Alternative)
     """
-    primaries = Field(type=T.AbstractPrimary.list)
+    primaries = Field(type=T.PrimaryList)
     pass
+
+
+class Choices(Sequence.list):
+    annotations = Annotations(repr_name="Choices")
 
 
 @abstract
@@ -275,7 +303,7 @@ class CharNode(AbstractChar):
     pass
 
 
-p5_grammar = Grammar(main_rule_name='definitions2')
+p5_grammar = Grammar(main_rule_name='definitions')
 G = p5_grammar
 
 p5_grammar.add_rules(
@@ -291,10 +319,10 @@ p5_grammar.add_rules(
     #    ),
     #    L.Termination
     #),
-    definitions2=Pick(
+    definitions=Pick(
         List(
             G.definition,
-            list_cls=T.Definition.list,
+            list_cls=T.Definitions,
             empty_valid=True
         ),
         L.Termination
@@ -316,29 +344,13 @@ p5_grammar.add_rules(
         Token.Identifier
     ),
 
-    #group=Group(
-    #    Pick(
-    #        "(",
-    #        NoBacktrack(),
-    #        G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
-    #        #G.expression,
-    #        ")"
-    #    )
-    #),
-
     expression=Expression(
-        G.sequence_list
-        #List(
-        #    G.sequence,
-        #    list_cls=Sequence.list,
-        #    sep="/",
-        #    empty_valid=False
-        #)
+        G.choices
     ),
 
-    sequence_list=List(
+    choices=List(
         G.sequence,
-        list_cls=T.Sequence.list,
+        list_cls=T.Choices,
         sep="/",
         empty_valid=False
     ),
@@ -380,15 +392,13 @@ p5_grammar.add_rules(
         Pick(
             "(",
             NoBacktrack(),
-            G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
-            #G.expression,
+            G.expression if GROUP_AS_EXPRESSION else G.choices,
             ")"
         ),
         G.literal,
         G.char_class,
         Dot("."),
     ),
-
 
     char_class=Or(
         UnaryClass(L.UnaryRangeClass),
