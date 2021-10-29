@@ -1,51 +1,50 @@
-from langkit.parsers import Grammar, Or, List, Pick, Opt, NoBacktrack, _, Skip  # , NoBacktrack as cut, Null
+from langkit.parsers import (
+    Grammar, Or, List, Pick, Opt, NoBacktrack,
+    #_, Skip,  # , NoBacktrack as cut, Null
+)
 
-from langkit.dsl import T, ASTNode, Annotations, abstract, has_abstract_list, Field  # , synthetic
+from langkit.dsl import (
+    T, ASTNode, Annotations, Field,
+    abstract, has_abstract_list, synthetic
+)
 
 from langkit.expressions import (
     langkit_property, Self  # , Property
 )
 
+from langkit.envs import (
+    EnvSpec, add_to_env_kv
+)
+
 from peg5.language.lexer import Token, p5_lexer as L
 
-
-def ZeroOrMoreNewlinesHelper():
-    return _(List(G.nl, empty_valid=True))
-
-
-def ZeroOrOneNewlinesHelper():
-    return _(Opt(G.nl))
+#
+GROUP_AS_EXPRESSION = True
 
 
-def ZeroOrOneNewlinesOrTerminationHelper():
-    return _(Opt(Or(G.nl, L.Termination)))
-
-
+#
 @abstract
 class Peg5Node(ASTNode):
     """
-    Root class for Peg5 AST nodes.
+    Root class for Peg5 nodes.
     """
-    #toto = Property(Self.match(
-    #    lambda j=T.Peg5Node: 2323
-    #                           )
-    #                )
+    #dummy = Property(Self.match(lambda j=T.Peg5: 2323))
     pass
 
 
-class GrammarNode(Peg5Node):
-    """
-    Root grammar node.
-    """
-    definitions = Field(type=T.DefinitionNode.list)
+#class Peg5Grammar(Peg5Node):
+#    """
+#    Root Peg5 Grammar Node.
+#    """
+#    definitions = Field(type=T.Definition.list)
 #
-#    #@langkit_property(return_type=T.Int, public=True)
-#    #def n_def():
-#    #    """
-#    #    Return the number of definitions in a grammar
-#    #    """
-#    #    return Self.definitions.length
-#    #
+#    @langkit_property(return_type=T.Int, public=True)
+#    def n_def():
+#        """
+#        Return the number of definitions in this grammar
+#        """
+#        return Self.definitions.length
+#
 #    #@langkit_property(return_type=ParameterDecl, public=True)
 #    #def find_parameter(name=T.String):
 #    #    """
@@ -61,17 +60,22 @@ class GrammarNode(Peg5Node):
 #    #    return Self.arms.at(n - 1).exprs_list
 
 
-class DefinitionNode(Peg5Node):
+class Definition(Peg5Node):
     """
     Definition
     """
-    id = Field(type=T.IdentifierNode)
-    expression = Field(type=T.ExpressionNode)
+    id = Field(type=T.Identifier)
+    expression = Field(type=T.Expression)
+    #expression = Field(type=T.Sequence.list)
+
     #doc = Field(type=T.CommentNode)
+    env_spec = EnvSpec(
+        add_to_env_kv(Self.id.sym, Self)
+    )
     pass
 
 
-class IdentifierNode(Peg5Node):
+class Identifier(Peg5Node):
     """
     Identifier.
     """
@@ -84,153 +88,142 @@ class IdentifierNode(Peg5Node):
         """
         return Self.symbol
 
-
-class ExpressionNode(Peg5Node):
+# TODO: making Expression subclass abstractPrimary make it composite 
+# and make Group redundant
+class Expression(Peg5Node):
     """
     Expression
     """
-    choices = Field(type=T.SequenceNode.list)
+    choices = Field(type=T.Sequence.list)
 
 
-class SequenceNode(Peg5Node):
+class Sequence(Peg5Node):
     """
     Sequence (also Alternative)
     """
-    primaries = Field(type=T.PrimaryNode.list)
+    primaries = Field(type=T.AbstractPrimary.list)
     pass
 
 
 @abstract
-class PrimaryNode(Peg5Node):
+#@has_abstract_list
+class AbstractPrimary(Peg5Node):
     """
-    PrimaryNode: Base for...
-
-    todo: suffix as boolean (remember to desugar the expression)
+    AbstractPrimary: Base for...
+    TODO: suffix as boolean (remember to desugar the expression)
     """
     pass
 
 
 @abstract
-class OperandNode(Peg5Node):
+class AbstractOperator(Peg5Node):
     """
-    Abstract Base Operator Node.
+    AbstractOperator Node.
     """
     pass
 
 
-class PrefixOperandNode(OperandNode):
+class PrefixOperator(AbstractOperator):
     """
     """
     enum_node = True
     alternatives = ['and', 'not']
 
 
-class PrefixedNode(PrimaryNode):
+class PrefixedPrimary(AbstractPrimary):
     """
-    Prefixed Primary Node.
+    PrefixedPrimary Node.
     """
-    prefix = Field(type=T.PrefixOperandNode)
-    primary = Field(type=T.PrimaryNode)
+    prefix = Field(type=T.PrefixOperator)
+    primary = Field(type=T.AbstractPrimary)
 
 
-class SuffixOperandNode(OperandNode):
+class SuffixOperator(AbstractOperator):
     """
-    .
     """
     enum_node = True
     alternatives = ['optional', 'zero_or_more', 'one_or_more']
 
 
-class SuffixedNode(PrimaryNode):
+class SuffixedPrimary(AbstractPrimary):
     """
-    Suffixed Primary Node.
+    SuffixedPrimary Node.
     """
-    primary = Field(type=T.PrimaryNode)
-    suffix = Field(type=T.SuffixOperandNode)
+    primary = Field(type=T.AbstractPrimary)
+    suffix = Field(type=T.SuffixOperator)
 
 
-class RefIdentifierNode(PrimaryNode):
+class IdentifierReference(AbstractPrimary):
     """
-    .
     """
     token_node = True
 
 
-class GroupNode(PrimaryNode):
+class Group(AbstractPrimary):
     """
     Grouped Expression
     """
-    expression = Field(type=T.ExpressionNode)
-
-
+    expression = Field(type=(T.Expression if GROUP_AS_EXPRESSION else T.Sequence.list))
 
 
 @abstract
-class RangeNode(Peg5Node):
+class AbstractClass(AbstractPrimary):
     """
-    RangeNode.
-    """
-    pass
-
-
-class UnaryRangeNode(RangeNode):
-    """
-    UnaryRangeNode
-    """
-    #token_node=True
-    a = Field(type=T.AbstractChar)
-
-
-class BinaryRangeNode(RangeNode):
-    """
-    BinaryRangeNode
-    """
-    #token_node=True
-    a = Field(type=T.AbstractChar)
-    b = Field(type=T.AbstractChar)
-    pass
-
-
-class CharClassNode(PrimaryNode):
-    """
-    CharClassNode
-    """
-    range = Field(type=T.RangeNode)
-    pass
-
-
-class DotNode(PrimaryNode):
-    """
-    .
+    Char Class Base.
     """
     token_node = True
 
 
-class NLNode(PrimaryNode):
+class UnaryClass(AbstractClass):
     """
-    .
+    UnaryClass
     """
+    #a = Field(type=T.AbstractChar)
     pass
 
 
-#@has_abstract_list
-@abstract
-class AbstractLiteral(PrimaryNode):
+class BinaryClass(AbstractClass):
+    """
+    BinaryClass
+    """
+    #a = Field(type=T.AbstractChar)
+    #b = Field(type=T.AbstractChar)
     pass
 
-
-#class LiteralNode(PrimaryNode):
+#@synthetic
+#class Range(BaseTypeDecl):
+#    pass
+#class CharClassNode(AbstractPrimary):
 #    """
-#    LiteralNode
-#    TODO: define this as a choice of CharNodes to allow escapes.
+#    CharClassNode
 #    """
-#    #token_node = True
-#    #text=Field()
+#    range = Field(type=T.RangeNode)
 #    pass
 
-class LiteralNode(AbstractLiteral):
+
+class Dot(AbstractPrimary):
     pass
-    literals = Field(type=T.AbstractChar.list) 
+    #token_node = True
+
+
+#
+##@has_abstract_list
+#@abstract
+#class AbstractLiteral(AbstractPrimary):
+#    pass
+#
+
+
+class Literal(AbstractPrimary):
+    """
+    Literal
+    """
+    token_node = True
+
+
+#class Literal(AbstractLiteral):
+#    pass
+#    literals = Field(type=T.AbstractChar.list)
 
 
 #class NonEscapedLiteral(AbstractLiteral):
@@ -253,6 +246,8 @@ class AbstractChar(Peg5Node):
     token_node = True
     pass
 
+
+@synthetic
 class CharNode(AbstractChar):
     """
     """
@@ -267,77 +262,88 @@ class CharNode(AbstractChar):
     #char = Field()
     pass
 
-class EscapedChar(AbstractChar):
-    pass
 
-class EscapedOctalChar(AbstractChar):
-    pass
-    
-
-p5_grammar = Grammar('main_rule')
+p5_grammar = Grammar(main_rule_name='definitions2')
 G = p5_grammar
 
 p5_grammar.add_rules(
 
-    # main_rule=List(IdentifierNode(L.Identifier(match_text="first")),
+    # main_rule=List(Identifier(L.Identifier(match_text="first")),
     #               empty_valid=True),
 
-    #main_rule=Or(
-    #    #Pick(List(G.comment,empty_valid=False), L.Termination),
-    #    Pick(G.definition, L.Termination),
-    #    Pick(
-    #        List(
-    #            G.definition,
-    #            list_cls=T.Definition.list, empty_valid=True
-    #        ),
-    #        L.Termination
+    #definitions=Peg5Grammar(
+    #    List(
+    #        G.definition,
+    #        list_cls=T.Definition.list,
+    #        empty_valid=True
     #    ),
-    #    #Pick(G.comment, L.Termination)
+    #    L.Termination
     #),
-
-    main_rule=GrammarNode(
+    definitions2=Pick(
         List(
-            ZeroOrMoreNewlinesHelper(),
             G.definition,
-            ZeroOrMoreNewlinesHelper(),
-            list_cls=T.DefinitionNode.list,
+            list_cls=T.Definition.list,
             empty_valid=True
         ),
         L.Termination
     ),
 
-    definition=DefinitionNode(
-        G.identifier,  # (Token.DefIdentifier),
-        "<-",
+    definition=Definition(
+        G.defining_id,
         G.expression,
-        #ZeroOrOneNewlinesOrTerminationHelper(),
-        L.NL  # TODO: this extra NL is cheating...
+        Opt(";")
     ),
 
-    identifier=IdentifierNode(Token.Identifier),
+    defining_id=Pick(
+        G.identifier,
+        NoBacktrack(),
+        "<-"
+    ),
 
-    expression=ExpressionNode(
-        List(
-            G.sequence,
-            list_cls=SequenceNode.list, 
-            sep="/", 
-            empty_valid=False
+    identifier=Identifier(
+        Token.Identifier
+    ),
+
+    group=Group(
+        Pick(
+            "(",
+            NoBacktrack(),
+            G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
+            #G.expression,
+            ")"
         )
     ),
 
-    sequence=SequenceNode(
+    expression=Expression(
+        G.sequence_list
+        #List(
+        #    G.sequence,
+        #    list_cls=Sequence.list,
+        #    sep="/",
+        #    empty_valid=False
+        #)
+    ),
+
+    sequence_list=List(
+        G.sequence,
+        list_cls=Sequence.list,
+        sep="/",
+        empty_valid=False
+    ),
+
+    sequence=Sequence(
         List(
             G.prefixed,
-            list_cls=PrimaryNode.list, 
+            list_cls=AbstractPrimary.list,
             empty_valid=False
         )
     ),
 
     prefixed=Or(
-        PrefixedNode(
+        PrefixedPrimary(
             Or(
-                PrefixOperandNode.alt_and("&"),
-                PrefixOperandNode.alt_not("!")
+                PrefixOperator.alt_and("&"),
+                PrefixOperator.alt_not("!")
             ),
             G.suffixed
         ),
@@ -345,97 +351,41 @@ p5_grammar.add_rules(
     ),
 
     suffixed=Or(
-        SuffixedNode(
+        SuffixedPrimary(
             G.primary,
             Or(
-                SuffixOperandNode.alt_optional("?"),
-                SuffixOperandNode.alt_zero_or_more("*"),
-                SuffixOperandNode.alt_one_or_more("+")
-            ), #cut(),
+                SuffixOperator.alt_optional("?"),
+                SuffixOperator.alt_zero_or_more("*"),
+                SuffixOperator.alt_one_or_more("+")
+            ),
         ),
         G.primary
     ),
 
-    primary=Pick(
-        #ZeroOrMoreNewlinesHelper(),
-        Or(
-            RefIdentifierNode(Token.Identifier),
-            #Group(Pick("(",G.expression,")")),
-            G.group,
-            G.literal,
-            G.char_class,
-            DotNode(".")#,
-            #G.literal
-        ),
-        ZeroOrOneNewlinesHelper(),
-    ),
-
-    # TODO: ZeroOrMoreNewlinesHelper here breaks the unparser generator
-    group=GroupNode(
-        Pick("(",
-             ZeroOrMoreNewlinesHelper(),
-             G.expression,
-             ZeroOrMoreNewlinesHelper(),
-             ")"
-             )
-    ),
-
-    char_class=CharClassNode(
-        Pick("[",  # cut
-             G.range,
-             "]"
-             )
+    primary=Or(
+        IdentifierReference(Token.Identifier),
+        G.group,
+        G.literal,
+        G.char_class,
+        Dot("."),
     ),
 
 
-    range=Or(
-        BinaryRangeNode(G.char, "-", G.char),
-        UnaryRangeNode(G.char)
+    char_class=Or(
+        UnaryClass(L.UnaryRangeClass),
+        BinaryClass(L.BinaryRangeClass),
     ),
+
+    #range=Or(
+    #    BinaryRangeNode(G.char, "-", G.char),
+    #    UnaryRangeNode(G.char)
+    #),
+
+    #nl=NLNode(L.NL),
+
+    literal=Literal(Token.Literal),
+
+    #char=CharNode(Token.Char),
 
     #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
-
-    nl=NLNode(L.NL),
-
-    #literal=SingleQuoteLiteral(Token.Toto),
-    
-
-    literal=Pick(
-        "'",
-        LiteralNode(
-            List(
-                G.char,
-#                Or(
-#                    NonEscapedLiteral(Token.Literal),
-#                    EscapedCharLiteral(G.char),
-#                    #Pick(
-#                    #    "\\", 
-#                    #    NoBacktrack(),
-#                    #    Or(
-#                    #        OctalEscapedLiteral(Token.Octal),
-#                    #        Escape(Token.Escape),
-#                    #        EscapedCharLiteral(Token.Char),
-#                    #    ),
-#                    ##),
-#                ),
-                list_cls=AbstractChar.list,
-                empty_valid=True
-            )
-        ),
-        NoBacktrack(),
-        "'"
-    ),
-    
-    char=Or(
-            CharNode(Token.Char),
-#            Pick(
-#                Token.Escape,
-#                NoBacktrack((),
-#                Or(
-                    EscapedChar(Token.Escaped),
-                    EscapedOctalChar(Token.Octal),
-#                )
-#            )
-#       )
-    )
 )

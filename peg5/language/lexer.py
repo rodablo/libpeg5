@@ -1,13 +1,14 @@
-from langkit.lexer import (Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, Ignore,
-                           TokenFamily, Alt, Case
-                           )
+from langkit.lexer import (
+    Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, 
+    # Ignore, TokenFamily, Alt, Case
+)
 
 
 class Token(LexerToken):
-    # 
+    #
     LeftArrow = WithText()
     Slash = WithText()
-    BackSlash = WithText()
+    #BackSlash = WithText()
     And = WithText()
     Not = WithText()
     Question = WithText()
@@ -20,21 +21,27 @@ class Token(LexerToken):
     Dot = WithText()
     Quote = WithText()
     Dash = WithText()
+    # TODO: temporary hack until i fully undertand how to make <- left associative
+    Semicolon = WithText()
     #
     Literal = WithText()
     #
     Char = WithText()
-    Escaped = WithText()
-    Octal = WithText()
+    #Escaped = WithText()
+    #Octal = WithText()
+    UnaryRangeClass = WithText()
+    BinaryRangeClass = WithText()
     #
-    Comment = WithTrivia()
-    EndOfLine = WithText()
+    #EndOfLine = WithText()
     #Suffix = WithText()
     Identifier = WithSymbol()
-    NL = WithText()
+    #NL = WithText()
     #Identifier = WithText()
     #IdentifierContinue = WithText()
     #
+    Comment = WithTrivia()
+    Whitespace = WithTrivia()
+
     #Punctuations = TokenFamily(
     #    LeftArrow, Slash, And, Not, Question, Star,
     #    Plus, LPar, RPar, Dot
@@ -51,17 +58,19 @@ p5_lexer = Lexer(Token
 
 p5_lexer.add_patterns(
     ('ID_CAR', r"[a-zA-Z_]"),
-    ('ID_CDR', r"[a-zA-Z0-9_]*"),
+    ('ID_CDR', r"({ID_CAR}|[0-9])*"),
 #    ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*"),
     ('IDENTIFIER', r"{ID_CAR}{ID_CDR}"),
     #("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
 #    ('CHAR', r"[^'\\\n]"),
     ('OCTAL_CHAR', r"(\\([0-2][0-7][0-7]|[0-7][0-7]?))"),
-    ('ESCAPED_CHAR', r"(\\(r|t|n|\\))"),
+    ('ESCAPED_CHAR', r"(\\[rtn\\])"),
     ('CHAR', r"({ESCAPED_CHAR}|{OCTAL_CHAR}|[^\n])"),
     ("LITERAL_S", r"('({CHAR}|\")*')"),
     ("LITERAL_D", r'("({CHAR}|\')*")'),
     ("LITERAL", r"({LITERAL_S}|{LITERAL_D})"),
+    ("CLASS_U",r"(\[{CHAR}\])"),
+    ("CLASS_B",r"(\[{CHAR}-{CHAR}\])"),
 
 #    ('ESCAPE_2_CHAR', r"«"),
 #    ('CHAR', r"(({ESCAPE_1_CHAR}|{ESCAPE_2_CHAR}))"),
@@ -77,8 +86,11 @@ p5_lexer.add_patterns(
 
 
 rules = [
-    (Literal('\n'), Token.NL),
-    (Pattern(r"[ \r\t]+"), Ignore()),
+    # Blanks and trivia
+    (Pattern(r"[ \t\r\n\f]+"), Token.Whitespace),
+    (Pattern(r"#(.?)+"), Token.Comment),
+#    (Literal('\n'), Token.NL),
+#    (Pattern(r"[ \r\t]+"), Ignore()),
 ]
 
 non_esc_chr = "'\\\\\n"
@@ -105,7 +117,6 @@ non_esc_chr = "'\\\\\n"
 
 
 for txt, esc, tok in [
-#    ("\\", r"\\", Token.BackSlash),
     ("/", "/", Token.Slash),
     ("&", r"\&", Token.And),
     ("!", r"\!", Token.Not),
@@ -118,19 +129,21 @@ for txt, esc, tok in [
     ("[", r"\[", Token.LBra),
     ("]", r"\]", Token.RBra),
     ("-", r"\-", Token.Dash),
+    (";", ";", Token.Semicolon),
 ]:
     rules.append(
-        Case(
-            Literal(txt),
-            Alt(prev_token_cond=(Token.Quote, Token.Literal, Token.Char, Token.BackSlash),
-                send=Token.Char, match_size=len(txt)),
-            Alt(send=tok, match_size=len(txt))
-        )
+        (Literal(txt), tok)
+#        Case(
+#            Literal(txt),
+#            Alt(prev_token_cond=(Token.Quote, Token.Literal, Token.Char, Token.BackSlash),
+#                send=Token.Char, match_size=len(txt)),
+#            Alt(send=tok, match_size=len(txt))
+#        )
     )
-    non_esc_chr += esc
+#    non_esc_chr += esc
     #print('{}->{}'.format(txt, tok))
 
-toto = "[^{}]+".format(non_esc_chr)
+#toto = "[^{}]+".format(non_esc_chr)
 # print(toto)
 #p5_lexer.add_patterns(
 #    ('NON_ESCAPED_CHARS', toto),
@@ -164,12 +177,12 @@ rules += [
 #    (Literal("-"), Token.Dash),
     #(Pattern('{literal}'),      Token.Literal),
     #(Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
-    (Pattern('{LITERAL}'), Token.Literal),
-    (Pattern('{CHAR}'), Token.Char),
     (Pattern('{IDENTIFIER}'), Token.Identifier),
+    (Pattern('{LITERAL}'), Token.Literal),
+    #(Pattern('{CHAR}'), Token.Char),
 
-    #(Pattern('{OCTAL_CHAR}'), Token.Octal),
-    #(Pattern('{ESCAPED_CHAR}'), Token.Escaped),
+    (Pattern('{CLASS_U}'), Token.UnaryRangeClass),
+    (Pattern('{CLASS_B}'), Token.BinaryRangeClass),
 
     # order of clauses is relevant...
     #(Pattern('{literal_chars}'),    Token.LiteralChar),
