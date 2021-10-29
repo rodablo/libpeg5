@@ -79,6 +79,8 @@ class Identifier(Peg5Node):
     """
     Identifier.
     """
+    annotations = Annotations(repr_name="IdDef")
+
     token_node = True
 
     @langkit_property(return_type=T.Symbol, public=True)
@@ -88,9 +90,27 @@ class Identifier(Peg5Node):
         """
         return Self.symbol
 
-# TODO: making Expression subclass abstractPrimary make it composite 
+@abstract
+@has_abstract_list
+class AbstractPrimary(Peg5Node):
+    """
+    AbstractPrimary: Base for...
+    TODO: suffix as boolean (remember to desugar the expression)
+    """
+    pass
+
+# this way i suspect is how implement the specialized list
+# this class replace expression
+class PrimaryList(AbstractPrimary.list):
+    pass
+
+#class PrimaryList2(AbstractPrimary.list):
+#    pass
+
+
+# TODO: making Expression subclass abstractPrimary make it composite
 # and make Group redundant
-class Expression(Peg5Node):
+class Expression(AbstractPrimary):
     """
     Expression
     """
@@ -102,16 +122,6 @@ class Sequence(Peg5Node):
     Sequence (also Alternative)
     """
     primaries = Field(type=T.AbstractPrimary.list)
-    pass
-
-
-@abstract
-#@has_abstract_list
-class AbstractPrimary(Peg5Node):
-    """
-    AbstractPrimary: Base for...
-    TODO: suffix as boolean (remember to desugar the expression)
-    """
     pass
 
 
@@ -156,14 +166,16 @@ class SuffixedPrimary(AbstractPrimary):
 class IdentifierReference(AbstractPrimary):
     """
     """
+    annotations = Annotations(repr_name="IdRef")
+
     token_node = True
 
 
-class Group(AbstractPrimary):
-    """
-    Grouped Expression
-    """
-    expression = Field(type=(T.Expression if GROUP_AS_EXPRESSION else T.Sequence.list))
+#class Group(AbstractPrimary):
+#    """
+#    Grouped Expression
+#    """
+#    expression = Field(type=(T.Expression if GROUP_AS_EXPRESSION else T.Sequence.list))
 
 
 @abstract
@@ -304,15 +316,15 @@ p5_grammar.add_rules(
         Token.Identifier
     ),
 
-    group=Group(
-        Pick(
-            "(",
-            NoBacktrack(),
-            G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
-            #G.expression,
-            ")"
-        )
-    ),
+    #group=Group(
+    #    Pick(
+    #        "(",
+    #        NoBacktrack(),
+    #        G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
+    #        #G.expression,
+    #        ")"
+    #    )
+    #),
 
     expression=Expression(
         G.sequence_list
@@ -326,7 +338,7 @@ p5_grammar.add_rules(
 
     sequence_list=List(
         G.sequence,
-        list_cls=Sequence.list,
+        list_cls=T.Sequence.list,
         sep="/",
         empty_valid=False
     ),
@@ -334,7 +346,7 @@ p5_grammar.add_rules(
     sequence=Sequence(
         List(
             G.prefixed,
-            list_cls=AbstractPrimary.list,
+            list_cls=T.PrimaryList,
             empty_valid=False
         )
     ),
@@ -364,7 +376,14 @@ p5_grammar.add_rules(
 
     primary=Or(
         IdentifierReference(Token.Identifier),
-        G.group,
+        #G.group,
+        Pick(
+            "(",
+            NoBacktrack(),
+            G.expression if GROUP_AS_EXPRESSION else G.sequence_list,
+            #G.expression,
+            ")"
+        ),
         G.literal,
         G.char_class,
         Dot("."),
