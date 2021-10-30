@@ -1,2 +1,1 @@
-18.input:1:2: Invalid token, ignored
-18.input:1:1: Expected Literal, got '''
+18.input:1:4: Expected Literal, got Termination

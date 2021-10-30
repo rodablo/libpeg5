@@ -11,22 +11,22 @@ class Token(LexerToken):
     #BackSlash = WithText()
     And = WithText()
     Not = WithText()
-    Question = WithText()
     Star = WithText()
     Plus = WithText()
+    Question = WithText()
     LPar = WithText()
     RPar = WithText()
-    LBra = WithText()
-    RBra = WithText()
+    #LBra = WithText()
+    #RBra = WithText()
     Dot = WithText()
-    Quote = WithText()
-    Dash = WithText()
-    # TODO: temporary hack until i fully undertand how to make <- left associative
+    #Quote = WithText()
+    #Dash = WithText()
+    #TODO: temporary hack until i fully undertand how to make <- left associative
     Semicolon = WithText()
     #
     Literal = WithText()
     #
-    Char = WithText()
+    #Char = WithText()
     #Escaped = WithText()
     #Octal = WithText()
     UnaryRangeClass = WithText()
@@ -48,32 +48,20 @@ class Token(LexerToken):
     #)
 
 
-p5_lexer = Lexer(Token
-    #,
-    #track_indent=False,
-    #pre_rules=[
-    #    (Pattern(r'\\\n[ \r\t]*'), Ignore())
-    #]
-)
+peg5_lexer = Lexer(Token)
 
-p5_lexer.add_patterns(
+peg5_lexer.add_patterns(
     ('ID_CAR', r"[a-zA-Z_]"),
     ('ID_CDR', r"({ID_CAR}|[0-9])*"),
-#    ('IDENTIFIER', r"[a-zA-Z_][a-zA-Z0-9_]*"),
     ('IDENTIFIER', r"{ID_CAR}{ID_CDR}"),
-    #("LITERAL_DBQ", r'"(\\"|[^\n"])*"'),
-#    ('CHAR', r"[^'\\\n]"),
     ('OCTAL_CHAR', r"(\\([0-2][0-7][0-7]|[0-7][0-7]?))"),
     ('ESCAPED_CHAR', r"(\\[rtn\\])"),
     ('CHAR', r"({ESCAPED_CHAR}|{OCTAL_CHAR}|[^\n])"),
     ("LITERAL_S", r"('({CHAR}|\")*')"),
     ("LITERAL_D", r'("({CHAR}|\')*")'),
     ("LITERAL", r"({LITERAL_S}|{LITERAL_D})"),
-    ("CLASS_U",r"(\[{CHAR}\])"),
-    ("CLASS_B",r"(\[{CHAR}-{CHAR}\])"),
-
-#    ('ESCAPE_2_CHAR', r"«"),
-#    ('CHAR', r"(({ESCAPE_1_CHAR}|{ESCAPE_2_CHAR}))"),
+    ("CLASS_U", r"(\[{CHAR}\])"),
+    ("CLASS_B", r"(\[{CHAR}-{CHAR}\])"),
 
     # https://en.wikipedia.org/wiki/Template:General_Category_(Unicode)
     # ('identifier', r"\$?(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}"
@@ -81,7 +69,6 @@ p5_lexer.add_patterns(
     #               r"(\p{Lu}|\p{Ll}|\p{Lt}|\p{Lm}|\p{Lo}|\p{Nl}|\p{Nd}|\p{Mn}"
     #               r"|\p{Mc}"
     #               r"|_|{bracket_char})*"),
-    #TODO: this needs to be tokenized too.... az.\n\t
 )
 
 
@@ -89,11 +76,9 @@ rules = [
     # Blanks and trivia
     (Pattern(r"[ \t\r\n\f]+"), Token.Whitespace),
     (Pattern(r"#(.?)+"), Token.Comment),
-#    (Literal('\n'), Token.NL),
-#    (Pattern(r"[ \r\t]+"), Ignore()),
 ]
 
-non_esc_chr = "'\\\\\n"
+#non_esc_chr = "'\\\\\n"
 
 #rules.append(
 #    Case(
@@ -103,7 +88,6 @@ non_esc_chr = "'\\\\\n"
 #        Alt(send=Token.Identifier, match_size=1)
 #    )
 #)
-
 #rules.append(
 #    Case(
 #        Literal("\\"),
@@ -116,37 +100,34 @@ non_esc_chr = "'\\\\\n"
 #)
 
 
-for txt, esc, tok in [
-    ("/", "/", Token.Slash),
-    ("&", r"\&", Token.And),
-    ("!", r"\!", Token.Not),
-    ("*", r"\*", Token.Star),
-    ("?", r"\?", Token.Question),
-    ("+", r"\+", Token.Plus),
-    ("(", r"\(", Token.LPar),
-    (")", r"\)", Token.RPar),
-    (".", r"\.", Token.Dot),
-    ("[", r"\[", Token.LBra),
-    ("]", r"\]", Token.RBra),
-    ("-", r"\-", Token.Dash),
-    (";", ";", Token.Semicolon),
-]:
-    rules.append(
-        (Literal(txt), tok)
-#        Case(
-#            Literal(txt),
-#            Alt(prev_token_cond=(Token.Quote, Token.Literal, Token.Char, Token.BackSlash),
-#                send=Token.Char, match_size=len(txt)),
-#            Alt(send=tok, match_size=len(txt))
-#        )
-    )
+#for txt, esc, tok in [
+#    ("/", "/", Token.Slash),
+#    ("&", r"\&", Token.And),
+#    ("!", r"\!", Token.Not),
+#    ("*", r"\*", Token.Star),
+#    ("?", r"\?", Token.Question),
+#    ("+", r"\+", Token.Plus),
+#    ("(", r"\(", Token.LPar),
+#    (")", r"\)", Token.RPar),
+#    (".", r"\.", Token.Dot),
+#    ("[", r"\[", Token.LBra),
+#    ("]", r"\]", Token.RBra),
+#    ("-", r"\-", Token.Dash),
+#    (";", ";", Token.Semicolon),
+#]:
+#    rules.append(
+#        (Literal(txt), tok)
+#        #        Case(
+#        #            Literal(txt),
+#        #            Alt(prev_token_cond=(Token.Quote, Token.Literal, Token.Char, Token.BackSlash),
+#        #                send=Token.Char, match_size=len(txt)),
+#        #            Alt(send=tok, match_size=len(txt))
+#        #        )
+#    )
 #    non_esc_chr += esc
-    #print('{}->{}'.format(txt, tok))
-
-#toto = "[^{}]+".format(non_esc_chr)
-# print(toto)
-#p5_lexer.add_patterns(
-#    ('NON_ESCAPED_CHARS', toto),
+#   #print('{}->{}'.format(txt, tok))
+##peg5_lexer.add_patterns(
+#    ('NON_ESCAPED_CHARS', "[^{}]+".format(non_esc_chr)),
 #)
 #Case(
 #    Pattern(r"a+"),
@@ -158,41 +139,30 @@ for txt, esc, tok in [
 rules += [
     #
     (Literal("<-"), Token.LeftArrow),
-    (Literal("'"), Token.Quote),
-#    (Literal("\\"), Token.BackSlash),
-#    (Literal("/"), Token.Slash),
-#    (Literal("&"), Token.And),
-#    (Literal("!"), Token.Not),
-#    (Literal("?"), Token.Question),
-#    (Literal("*"), Token.Star),
-#    (Literal("+"), Token.Plus),
-#    (Literal("("), Token.LPar),
-#    (Literal(")"), Token.RPar),
-#    (Literal("."), Token.Dot),
-#    # todo: evaluate quoting as tokens
-#    #(Literal("'"),              Token.SQuo),
-#    #(Pattern(r'\"'),             Token.DQuo),
-#    (Literal("["), Token.LBra),
-#    (Literal("]"), Token.RBra),
-#    (Literal("-"), Token.Dash),
-    #(Pattern('{literal}'),      Token.Literal),
-    #(Pattern('({LITERAL_SQ}|{LITERAL_DBQ})'), Token.Literal),
+    # (Literal("'"), Token.Quote),
+    # (Literal("\\"), Token.BackSlash),
+    (Literal("/"), Token.Slash),
+    (Literal("&"), Token.And),
+    (Literal("!"), Token.Not),
+    (Literal("*"), Token.Star),
+    (Literal("+"), Token.Plus),
+    (Literal("?"), Token.Question),
+    (Literal("("), Token.LPar),
+    (Literal(")"), Token.RPar),
+    (Literal("."), Token.Dot),
+    (Literal(";"), Token.Semicolon),
+    # (Literal("["), Token.LBra),
+    # (Literal("]"), Token.RBra),
+    # (Literal("-"), Token.Dash),
+
     (Pattern('{IDENTIFIER}'), Token.Identifier),
     (Pattern('{LITERAL}'), Token.Literal),
     #(Pattern('{CHAR}'), Token.Char),
 
     (Pattern('{CLASS_U}'), Token.UnaryRangeClass),
     (Pattern('{CLASS_B}'), Token.BinaryRangeClass),
-
-    # order of clauses is relevant...
-    #(Pattern('{literal_chars}'),    Token.LiteralChar),
-
-    #(Pattern('{id_ref}'), Token.RefIdentifier),
-
-#    (Pattern('{NON_ESCAPED_CHARS}'), Token.Literal),
     (Pattern(r"#(.?)+"), Token.Comment),
-
 ]
 
 
-p5_lexer.add_rules(*rules)
+peg5_lexer.add_rules(*rules)

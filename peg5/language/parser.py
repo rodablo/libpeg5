@@ -1,8 +1,3 @@
-from langkit.parsers import (
-    Grammar, Or, List, Pick, Opt, NoBacktrack,
-    #_, Skip,  # , NoBacktrack as cut, Null
-)
-
 from langkit.dsl import (
     T, ASTNode, Annotations, Field,
     abstract, has_abstract_list, synthetic
@@ -16,7 +11,6 @@ from langkit.envs import (
     EnvSpec, add_to_env_kv
 )
 
-from peg5.language.lexer import Token, p5_lexer as L
 
 #
 GROUP_AS_EXPRESSION = True
@@ -229,10 +223,22 @@ class CharNode(Peg5Node):
     pass
 
 
-p5_grammar = Grammar(main_rule_name='definitions')
-G = p5_grammar
+from peg5.language.lexer import (  # noqa: E402
+    Token, peg5_lexer as L
+)
 
-p5_grammar.add_rules(
+# From libadalang/ada/grammar.py
+# This import is after the language.ast import, because we want to be sure
+# no class from langkit.expressions are shadowing the parser combinators.
+from langkit.parsers import (  # noqa: E402
+    Grammar, Or, List, Pick, Opt, NoBacktrack,
+    #_, Skip,  # , NoBacktrack as cut, Null
+)
+
+peg5_grammar = Grammar(main_rule_name='definitions')
+G = peg5_grammar
+
+peg5_grammar.add_rules(
 
     # main_rule=List(Identifier(L.Identifier(match_text="first")),
     #               empty_valid=True),

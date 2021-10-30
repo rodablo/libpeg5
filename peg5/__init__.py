@@ -10,13 +10,13 @@ class Manage(ManageScript):
         if ctx:
             self._cached_context = ctx
         else:
-            from peg5.language.lexer import p5_lexer
-            from peg5.language.parser import p5_grammar
+            from peg5.language.lexer import peg5_lexer
+            from peg5.language.parser import peg5_grammar
             self._cached_context = CompileCtx(
                 lang_name='Peg5',
                 #   short_name='Peg5',
-                lexer=p5_lexer,
-                grammar=p5_grammar
+                lexer=peg5_lexer,
+                grammar=peg5_grammar
             )
             #self._cached_context.add_with_clause(
             #    'Implementation',
