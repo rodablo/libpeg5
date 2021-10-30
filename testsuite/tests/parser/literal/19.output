@@ -1,2 +1,1 @@
-19.input:1:2: Expected ''', got NL
-PrimaryNodeList[1:2-1:2]: <empty list>
+19.input:1:1: Expected Literal, got '''

@@ -1,2 +1,4 @@
 driver: parser
 rule: range
+control:
+- [SKIP, "True", "TODO: Range is now deprecated."]

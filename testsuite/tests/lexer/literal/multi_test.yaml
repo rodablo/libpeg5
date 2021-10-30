@@ -1,3 +1,5 @@
 driver: parser
 action: pp-tokens
+#charset: ISO-8859-1
+charset: utf-8
 rule: literal

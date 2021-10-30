@@ -1,2 +1,4 @@
 driver: python
 #input_sources: []
+control:
+- [SKIP, "True", "TODO: Char is now deprecated."]

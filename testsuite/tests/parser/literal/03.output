@@ -1,2 +1,1 @@
-PrimaryNodeList[1:2-1:4]
-|  QuotedLiteral[1:2-1:4]: ab
+Literal[1:1-1:5]: 'ab'

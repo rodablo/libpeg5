@@ -1,4 +1,1 @@
-PrimaryNodeList[1:2-1:9]
-|  QuotedLiteral[1:2-1:4]: ab
-|  EscapedCharLiteral[1:4-1:7]: \\77
-|  QuotedLiteral[1:7-1:9]: cd
+Literal[1:1-1:10]: 'ab\\77cd'

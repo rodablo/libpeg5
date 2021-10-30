@@ -1,1 +1,14 @@
-_a <- _b
+Definition[1:1-1:7]
+|f_id:
+|  IdDef[1:1-1:2]: a
+|f_expression:
+|  Expression[1:6-1:7]
+|  |f_choices:
+|  |  Choices[1:6-1:7]
+|  |  |  Primaries[1:6-1:7]
+|  |  |  |  IdRef[1:6-1:7]: b
+
+==== Dumping lexical environments ====
+$root = LexEnv(Static_Primary, Parent=null):
+    a: [<Definition simple_00.input:1:1-1:7>]
+

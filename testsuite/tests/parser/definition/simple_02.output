@@ -1,0 +1,40 @@
+Definition[1:1-1:48]
+|f_id:
+|  IdDef[1:1-1:2]: c
+|f_expression:
+|  Expression[1:6-1:48]
+|  |f_choices:
+|  |  Choices[1:6-1:48]
+|  |  |  Primaries[1:6-1:14]
+|  |  |  |  IdRef[1:6-1:7]: d
+|  |  |  |  Literal[1:8-1:14]: 'c\\\\r'
+|  |  |  Primaries[1:17-1:48]
+|  |  |  |  Suffixed[1:17-1:48]
+|  |  |  |  |f_primary:
+|  |  |  |  |  Expression[1:18-1:46]
+|  |  |  |  |  |f_choices:
+|  |  |  |  |  |  Choices[1:18-1:46]
+|  |  |  |  |  |  |  Primaries[1:18-1:46]
+|  |  |  |  |  |  |  |  UnaryClass[1:18-1:23]: [\\77]
+|  |  |  |  |  |  |  |  BinaryClass[1:23-1:29]: [\\7-d]
+|  |  |  |  |  |  |  |  Dot[1:30-1:31]
+|  |  |  |  |  |  |  |  Expression[1:34-1:45]
+|  |  |  |  |  |  |  |  |f_choices:
+|  |  |  |  |  |  |  |  |  Choices[1:34-1:45]
+|  |  |  |  |  |  |  |  |  |  Primaries[1:34-1:45]
+|  |  |  |  |  |  |  |  |  |  |  IdRef[1:34-1:35]: e
+|  |  |  |  |  |  |  |  |  |  |  Expression[1:37-1:42]
+|  |  |  |  |  |  |  |  |  |  |  |f_choices:
+|  |  |  |  |  |  |  |  |  |  |  |  Choices[1:37-1:42]
+|  |  |  |  |  |  |  |  |  |  |  |  |  Primaries[1:37-1:38]
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  IdRef[1:37-1:38]: f
+|  |  |  |  |  |  |  |  |  |  |  |  |  Primaries[1:41-1:42]
+|  |  |  |  |  |  |  |  |  |  |  |  |  |  IdRef[1:41-1:42]: g
+|  |  |  |  |  |  |  |  |  |  |  IdRef[1:44-1:45]: h
+|  |  |  |  |f_suffix:
+|  |  |  |  |  SuffixOperatorOptional[1:47-1:48]
+
+==== Dumping lexical environments ====
+$root = LexEnv(Static_Primary, Parent=null):
+    c: [<Definition simple_02.input:1:1-1:48>]
+

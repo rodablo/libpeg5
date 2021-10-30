@@ -1,2 +1,3 @@
 driver: parser
+charset: utf-8
 rule: literal

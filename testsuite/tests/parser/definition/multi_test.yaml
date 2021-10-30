@@ -1,2 +1,4 @@
 driver: parser
+charset: utf-8
 rule: definition
+action: pp-file-with-lexical-envs

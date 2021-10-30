@@ -1,2 +1,1 @@
-PrimaryNodeList[1:2-1:4]
-|  EscapedCharLiteral[1:2-1:4]: \\7
+Literal[1:1-1:5]: '\\7'

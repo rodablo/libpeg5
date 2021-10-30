@@ -1,2 +1,4 @@
 driver: parser
 rule: char
+control:
+- [SKIP, "True", "TODO: Char is now deprecated."]
