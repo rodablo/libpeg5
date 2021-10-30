@@ -66,11 +66,8 @@ class Definition(Peg5Node):
     Definition
     """
     id = Field(type=T.Identifier)
-    #expression = Field(type=T.ExpressionAsList)
     expression = Field(type=T.Expression)
-    #expression = Field(type=T.Sequence.list)
-
-    #doc = Field(type=T.CommentNode)
+    #  doc = Field(type=T.CommentNode)
     env_spec = EnvSpec(
         add_to_env_kv(Self.id.sym, Self)
     )
@@ -115,42 +112,21 @@ class AbstractPrimary(Peg5Node):
     pass
 
 
-# this way i suspect is how implement the specialized list
-# this class replace sequence
 @has_abstract_list
-class PrimaryList(AbstractPrimary.list):
+class SequenceList(AbstractPrimary.list):
     annotations = Annotations(repr_name="Primaries")
-    pass
 
-#class ExpressionAsList(PrimaryList.list):
-#    annotations = Annotations(repr_name="Expression")
 
-#
-#class ExpressionAsList(AbstractPrimary.list):
-#    annotations = Annotations(repr_name="ExpressionAsList")
-#    pass
-#
+class ExpressionList(SequenceList.list):
+    annotations = Annotations(repr_name="Choices")
 
-# TODO: making Expression subclass abstractPrimary make it composite
-# and make Group redundant
+
 class Expression(AbstractPrimary):
     """
     Expression
     """
-    choices = Field(type=T.Choices)
-
-
-@has_abstract_list
-class Sequence(Peg5Node):
-    """
-    Sequence (also Alternative)
-    """
-    primaries = Field(type=T.PrimaryList)
-    pass
-
-
-class Choices(Sequence.list):
-    annotations = Annotations(repr_name="Choices")
+    choices = Field(type=T.SequenceList.list)
+    #choices = Field(type=T.ExpressionList)
 
 
 @abstract
@@ -172,6 +148,7 @@ class PrefixedPrimary(AbstractPrimary):
     """
     PrefixedPrimary Node.
     """
+    annotations = Annotations(repr_name="Prefixed")
     prefix = Field(type=T.PrefixOperator)
     primary = Field(type=T.AbstractPrimary)
 
@@ -187,6 +164,7 @@ class SuffixedPrimary(AbstractPrimary):
     """
     SuffixedPrimary Node.
     """
+    annotations = Annotations(repr_name="Suffixed")
     primary = Field(type=T.AbstractPrimary)
     suffix = Field(type=T.SuffixOperator)
 
@@ -197,13 +175,6 @@ class IdentifierReference(AbstractPrimary):
     annotations = Annotations(repr_name="IdRef")
 
     token_node = True
-
-
-#class Group(AbstractPrimary):
-#    """
-#    Grouped Expression
-#    """
-#    expression = Field(type=(T.Expression if GROUP_AS_EXPRESSION else T.Sequence.list))
 
 
 @abstract
@@ -230,28 +201,9 @@ class BinaryClass(AbstractClass):
     #b = Field(type=T.AbstractChar)
     pass
 
-#@synthetic
-#class Range(BaseTypeDecl):
-#    pass
-#class CharClassNode(AbstractPrimary):
-#    """
-#    CharClassNode
-#    """
-#    range = Field(type=T.RangeNode)
-#    pass
-
 
 class Dot(AbstractPrimary):
     pass
-    #token_node = True
-
-
-#
-##@has_abstract_list
-#@abstract
-#class AbstractLiteral(AbstractPrimary):
-#    pass
-#
 
 
 class Literal(AbstractPrimary):
@@ -261,34 +213,8 @@ class Literal(AbstractPrimary):
     token_node = True
 
 
-#class Literal(AbstractLiteral):
-#    pass
-#    literals = Field(type=T.AbstractChar.list)
-
-
-#class NonEscapedLiteral(AbstractLiteral):
-#    token_node = True
-#
-#
-#class EscapedCharLiteral(AbstractLiteral):
-#    escaped_char = Field(type=CharNode)
-
-
-# class CommentNode(P5Node):
-#    """
-#    TODO: transform this in a document node
-#    """
-#    pass
-#    #text = Field()
-
-@abstract
-class AbstractChar(Peg5Node):
-    token_node = True
-    pass
-
-
 @synthetic
-class CharNode(AbstractChar):
+class CharNode(Peg5Node):
     """
     """
     # needs extension implementation
@@ -310,15 +236,6 @@ p5_grammar.add_rules(
 
     # main_rule=List(Identifier(L.Identifier(match_text="first")),
     #               empty_valid=True),
-
-    #definitions=Peg5Grammar(
-    #    List(
-    #        G.definition,
-    #        list_cls=T.Definition.list,
-    #        empty_valid=True
-    #    ),
-    #    L.Termination
-    #),
     definitions=Pick(
         List(
             G.definition,
@@ -350,17 +267,15 @@ p5_grammar.add_rules(
 
     choices=List(
         G.sequence,
-        list_cls=T.Choices,
+        list_cls=T.ExpressionList,
         sep="/",
         empty_valid=False
     ),
 
-    sequence=Sequence(
-        List(
-            G.prefixed,
-            list_cls=T.PrimaryList,
-            empty_valid=False
-        )
+    sequence=List(
+        G.prefixed,
+        list_cls=T.SequenceList,
+        empty_valid=False
     ),
 
     prefixed=Or(
@@ -388,11 +303,10 @@ p5_grammar.add_rules(
 
     primary=Or(
         IdentifierReference(Token.Identifier),
-        #G.group,
         Pick(
             "(",
             NoBacktrack(),
-            G.expression if GROUP_AS_EXPRESSION else G.choices,
+            G.expression,
             ")"
         ),
         G.literal,
@@ -405,16 +319,7 @@ p5_grammar.add_rules(
         BinaryClass(L.BinaryRangeClass),
     ),
 
-    #range=Or(
-    #    BinaryRangeNode(G.char, "-", G.char),
-    #    UnaryRangeNode(G.char)
-    #),
-
-    #nl=NLNode(L.NL),
-
     literal=Literal(Token.Literal),
 
     #char=CharNode(Token.Char),
-
-    #comment = Pick(CommentNode(Token.Comment),Opt(L.NL)),
 )

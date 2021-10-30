@@ -7,7 +7,7 @@ from drivers_.base_driver import BaseDriver
 class ParserDriver(BaseDriver):
 
     ACTIONS = ('pretty-print', 'pretty-print-file',
-               'pp-file-with-trivia', 'pp-file-with-lexical-envs')
+               'pp-file-with-trivia', 'pp-file-with-lexical-envs', 'pp-tokens')
 
     base_tree_dump_file = 'base-tree-dump.txt'
     unparsed_file = 'unparsed.txt'
@@ -83,6 +83,8 @@ class ParserDriver(BaseDriver):
             misc_argv += ['-P']
         elif action == 'pp-file-with-lexical-envs':
             misc_argv += ['-E']
+        elif action == 'pp-tokens':
+            misc_argv += ['-T']
 
         for lookup in self.get_lookups():
             misc_argv += [
