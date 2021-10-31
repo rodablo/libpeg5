@@ -1,22 +1,17 @@
 from langkit.dsl import (
-    T, ASTNode, Annotations, Field,
+    T, ASTNode, Annotations, Field,  # Symbol,
     abstract, has_abstract_list, synthetic
 )
 
-from langkit.expressions import (
-    langkit_property, Self  # , Property
-)
-
 from langkit.envs import (
-    EnvSpec, add_to_env_kv
+    EnvSpec, add_to_env_kv,  # add_env
+)
+
+from langkit.expressions import (
+    langkit_property, Self,  # ArrayLiteral, String, No, If, Property
 )
 
 
-#
-GROUP_AS_EXPRESSION = True
-
-
-#
 @abstract
 class Peg5Node(ASTNode):
     """
@@ -24,34 +19,6 @@ class Peg5Node(ASTNode):
     """
     #dummy = Property(Self.match(lambda j=T.Peg5: 2323))
     pass
-
-
-#class Peg5Grammar(Peg5Node):
-#    """
-#    Root Peg5 Grammar Node.
-#    """
-#    definitions = Field(type=T.Definition.list)
-#
-#    @langkit_property(return_type=T.Int, public=True)
-#    def n_def():
-#        """
-#        Return the number of definitions in this grammar
-#        """
-#        return Self.definitions.length
-#
-#    #@langkit_property(return_type=ParameterDecl, public=True)
-#    #def find_parameter(name=T.String):
-#    #    """
-#    #    Return the parameter associated with the given name, if any.
-#    #    """
-#    #    return Self.parameters.find(lambda p: p.param_identifier.text == name)
-#
-#    #@langkit_property(return_type=SelectorExpr.list, public=True)
-#    #def nth_expressions(n=(T.Int, 0)):
-#    #    """
-#    #    Return the selector expressions associated with the nth selector arm.
-#    #    """
-#    #    return Self.arms.at(n - 1).exprs_list
 
 
 @has_abstract_list
