@@ -4,7 +4,6 @@ __pycache__
 
 #
 out/
-tmp
-
-#
-venv
+tmp/
+venv/
+notas.txt
