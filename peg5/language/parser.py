@@ -1,12 +1,12 @@
-from peg5.language.ast import *
-
-from langkit.dsl import (
-    T
+from peg5.language.ast import (
+    Definition, Definitions,
+    Label, LabelReference,
+    Expression, ExpressionList, SequenceList,
+    PrefixedPrimary, Prefix, SuffixedPrimary, Suffix,
+    UnaryClass, BinaryClass, Dot, Literal
 )
 
-from peg5.language.lexer import (  # noqa: E402
-    Token, peg5_lexer as L
-)
+from peg5.language.lexer import peg5_lexer as L
 
 # From libadalang/ada/grammar.py
 # This import is after the language.ast import, because we want to be sure
@@ -26,26 +26,26 @@ peg5_grammar.add_rules(
     definitions=Pick(
         List(
             G.definition,
-            list_cls=T.Definitions,
+            list_cls=Definitions,
             empty_valid=True
         ),
         L.Termination
     ),
 
     definition=Definition(
-        G.defining_id,
+        G.header,
         G.expression,
         Opt(";")
     ),
 
-    defining_id=Pick(
-        G.identifier,
+    header=Pick(
+        G.label,
         NoBacktrack(),
         "<-"
     ),
 
-    identifier=Identifier(
-        Token.Identifier
+    label=Label(
+        L.Identifier
     ),
 
     expression=Expression(
@@ -54,22 +54,22 @@ peg5_grammar.add_rules(
 
     choices=List(
         G.sequence,
-        list_cls=T.ExpressionList,
+        list_cls=ExpressionList,
         sep="/",
         empty_valid=False
     ),
 
     sequence=List(
         G.prefixed,
-        list_cls=T.SequenceList,
+        list_cls=SequenceList,
         empty_valid=False
     ),
 
     prefixed=Or(
         PrefixedPrimary(
             Or(
-                PrefixOperator.alt_and("&"),
-                PrefixOperator.alt_not("!")
+                Prefix.alt_and("&"),
+                Prefix.alt_not("!")
             ),
             G.suffixed
         ),
@@ -80,16 +80,16 @@ peg5_grammar.add_rules(
         SuffixedPrimary(
             G.primary,
             Or(
-                SuffixOperator.alt_optional("?"),
-                SuffixOperator.alt_zero_or_more("*"),
-                SuffixOperator.alt_one_or_more("+")
+                Suffix.alt_optional("?"),
+                Suffix.alt_zero_or_more("*"),
+                Suffix.alt_one_or_more("+")
             ),
         ),
         G.primary
     ),
 
     primary=Or(
-        IdentifierReference(Token.Identifier),
+        G.reference,
         Pick(
             "(",
             NoBacktrack(),
@@ -101,12 +101,16 @@ peg5_grammar.add_rules(
         Dot("."),
     ),
 
+    reference=LabelReference(
+        Label(L.Identifier)
+    ),
+
     char_class=Or(
         UnaryClass(L.UnaryRangeClass),
         BinaryClass(L.BinaryRangeClass),
     ),
 
-    literal=Literal(Token.Literal),
+    literal=Literal(L.Literal),
 
-    #char=CharNode(Token.Char),
+    #char=CharNode(L.Char),
 )

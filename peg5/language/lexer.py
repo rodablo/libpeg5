@@ -1,5 +1,5 @@
 from langkit.lexer import (
-    Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern, 
+    Lexer, LexerToken, WithText, WithSymbol, WithTrivia, Literal, Pattern,
     # Ignore, TokenFamily, Alt, Case
 )
 
@@ -139,8 +139,6 @@ rules = [
 rules += [
     #
     (Literal("<-"), Token.LeftArrow),
-    # (Literal("'"), Token.Quote),
-    # (Literal("\\"), Token.BackSlash),
     (Literal("/"), Token.Slash),
     (Literal("&"), Token.And),
     (Literal("!"), Token.Not),
@@ -151,9 +149,6 @@ rules += [
     (Literal(")"), Token.RPar),
     (Literal("."), Token.Dot),
     (Literal(";"), Token.Semicolon),
-    # (Literal("["), Token.LBra),
-    # (Literal("]"), Token.RBra),
-    # (Literal("-"), Token.Dash),
 
     (Pattern('{IDENTIFIER}'), Token.Identifier),
     (Pattern('{LITERAL}'), Token.Literal),
