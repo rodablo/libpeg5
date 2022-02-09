@@ -1,23 +1,23 @@
 from langkit.dsl import (
     T, ASTNode, Annotations, Field,  # Symbol,
-    Bool,
-    UserField,
+    # Bool,
+    # UserField,
     abstract, has_abstract_list, synthetic
 )
 
 from langkit.envs import (
-    EnvSpec, add_to_env_kv, add_env, add_to_env
+    EnvSpec, add_to_env_kv, add_env,
+    # add_to_env
 )
 
 from langkit.expressions import (
     langkit_property, Self,
-    And,
-    # No,  # ArrayLiteral, , No, 
+    # And, No, ArrayLiteral,
     If,
-    # Property, 
-    String,
-    Entity,
-    Var,
+    # Property,
+    # String,
+    # Entity,
+    # Var,
     # new_env_assoc
     lazy_field,
 
@@ -47,7 +47,7 @@ class Peg5Node(ASTNode):
     #    return Self.match(
     #        lambda r=T.LabelReference:
     #            r.parent.parent.node_env.get(r.symbol).at(0),
-    #        lambda _: 
+    #        lambda _:
     #            No(T.entity),
     #    )
     @langkit_property(return_type=T.Bool, memoized=True)
@@ -57,17 +57,14 @@ class Peg5Node(ASTNode):
         """
         return If(
             Self.is_a(T.Expression, T.CharNode),
-
             # All nodes that can define a named environment are supposed to
             # live in lists, so use Self.parent.parent to get the node that
             # owns that list.
-            Self.parent.is_a(T.ExpressionList)
-            & Self.parent.parent.is_a(T.SequenceList)
-            & (Self.parent.parent.is_null 
-               | Self.parent.parent.can_have_dessert),
-
+            Self.parent.is_a(T.ExpressionList) & Self.parent.parent.is_a(T.SequenceList) & \
+            (Self.parent.parent.is_null | Self.parent.parent.can_have_dessert),
             False,
         )
+
 
 @has_abstract_list
 class Definition(Peg5Node):
@@ -223,7 +220,7 @@ class LabelReference(AbstractPrimary):
             value=Self,
         ),
     )
-
+#
     #@lazy_field(return_type=T.CharNode)
     #def new_node():
     #    return T.CharNode.new()
@@ -231,20 +228,17 @@ class LabelReference(AbstractPrimary):
     #@langkit_property(return_type=T.Int, public=True)
     #def prop():
     #    return Self.new_node.lf
-
-
-
+#
 #    @langkit_property(return_type=Bool,
 #                      public=True)
 #    def dummy_fun():
 #        dummy = Var(Entity)
-##        print('--------------------{}'.format(Entity.canonical_type))
+#        print('--------------------{}'.format(Entity.canonical_type))
 #        return And(
 #            Self.type.entity == dummy.entity,
 #            True
 #        )
-
-
+#
 #    @langkit_property(public=True)
 #    def resolve():
 #        return Self.node_env.get(Self.symbol).at(0)
@@ -275,10 +269,11 @@ class UnaryClass(AbstractClass):
     #pass
     # la idea es crearel nodo con New pasarle los campos en la inicializacion
     # y retornarloen una prop memoizada p_ y f_ en el api prefixan
-    # properties y fields, 
+    # properties y fields,
     @lazy_field(return_type=T.Int, public=True)
     def lf():
         return 42
+
     @langkit_property(return_type=T.Int, public=True, memoized=True)
     def prop():
         return Self.lf
@@ -303,9 +298,11 @@ class Literal(AbstractPrimary):
     """
     token_node = True
 
+
 @abstract
 class AbstractChar(Peg5Node):
     pass
+
 
 @synthetic
 class CharNode(AbstractChar):
