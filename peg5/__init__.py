@@ -1,6 +1,8 @@
 from langkit.libmanage import ManageScript
-from langkit.compile_context import CompileCtx
-#from langkit.compile_context import ADA_BODY
+from langkit.compile_context import (
+    CompileCtx,
+    # ADA_BODY
+)
 
 import os.path as P
 
@@ -14,7 +16,7 @@ class Manage(ManageScript):
             from peg5.language.parser import peg5_grammar
             self._cached_context = CompileCtx(
                 lang_name='Peg5',
-                #   short_name='Peg5',
+                # short_name='Peg5',
                 lexer=peg5_lexer,
                 grammar=peg5_grammar
             )
@@ -40,4 +42,3 @@ class Manage(ManageScript):
         super(Manage, self).do_generate(args)
 
     do_generate.__doc__ = ManageScript.do_generate.__doc__
-

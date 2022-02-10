@@ -1,6 +1,10 @@
 cd ../langkit
 
-source ./mise-en-place
+source ./venv/bin/activate
+
+eval $(./manage.py setenv-langkit-support)
+
+LKT_ROOT=$HOME/langkit;export LKT_ROOT
 
 cd -
 
