@@ -38,7 +38,8 @@ class Manage(ManageScript):
     def do_generate(self, args):
         # TODO: args.generate_unparser = False
         # args.generate_ada_api = False
-        args.report_unused_doc_entries = True
+        # args.report_unused_doc_entries = True
+        # args.pretty_print = True
         super(Manage, self).do_generate(args)
 
     #def do_test(self, args, unknown_args):
