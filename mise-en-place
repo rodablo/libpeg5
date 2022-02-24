@@ -1,15 +1,11 @@
-cd ../langkit
-
 source ./venv/bin/activate
-
-eval $(./manage.py setenv-langkit-support)
 
 LKT_ROOT=$HOME/langkit;export LKT_ROOT
 
-cd -
-
+eval $($LKT_ROOT/manage.py setenv-langkit-support)
 # to allow the python_driver to be imported
 PYTHONPATH=$LKT_ROOT/testsuite":$PYTHONPATH"; export PYTHONPATH
 
 # TODO: check if can avoid setting the environment at top level
-eval $(./manage.py setenv)
+#       because tests setup its own envionment when --local-build
+# eval $(./manage.py setenv)
