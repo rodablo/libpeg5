@@ -41,4 +41,10 @@ class Manage(ManageScript):
         args.report_unused_doc_entries = True
         super(Manage, self).do_generate(args)
 
+    #def do_test(self, args, unknown_args):
+    #    """
+    #    TODO: Run the testsuite.
+    #    """
+    #    pass
+
     do_generate.__doc__ = ManageScript.do_generate.__doc__
